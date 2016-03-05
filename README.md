@@ -48,6 +48,9 @@ If you want to go deeper into **docsmith** and content as code, you can also hel
 
  - ```docsmith init```: Or ```docsmith init <template>``` like ```docsmith init blog```, ```docsmith init doc``` or ```docsmith init wiki```.
  - ```docsmith install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
+ - ```docsmith install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
+ - ```docsmith install validator``` : Install default plugin suite in validator (linkchecker) or the one specified in the docsmith.yml file.
+ - ```docsmith install validator styleguide```: Install specific plugin (and updates the yml file)
 
  - ```docsmith build```: Build the content locally.
  - ```docsmith serve```: Serve the content locally. (Should probably open a console and allow to `pull`,`update` or `pull` within it)
@@ -62,19 +65,18 @@ If you want to go deeper into **docsmith** and content as code, you can also hel
 Example ```docsmith.yml```:
 
 ```yaml
-source: .                       # By default uses current directory, should be able to pull a remote directory too.
-build: 'github-pages'           # How is the build pipeline managed. could be travis, gitlab-ci, drone, local 
+source: .                   # By default uses current directory, should be able to pull a remote directory too.
+build: 'github-pages'       # How is the build pipeline managed. could be travis, gitlab-ci, drone, local Makefile, gulp, grunt...
 
 components:
-  source: 'github'              # Defaults to github could also be gitlab or a local folder or a remote url. Gollum for a wiki?
-  transform: ''                 # Maybe some type of pre-processing
-  validate: ''                  # Defaults to empty. List of validation scripts, for instance links,...
-  editor: 'github'              # What is the content authoring environment? Could be prose, realms,...
-Makefile, gulp, grunt...
-  generate: 'github-pages'      # How is the site generated. Could be github-pages, jekyll, metalsmith, hugo... 
-  publish: 'github-pages'       # Where is the content hosted? 
-  discuss: 'github-issues'      # Discussion threads, comments, wiki style discuss page...
-  review: 'github'              # Line based review like github code comments
+  source: 'github'          # Defaults to github could also be gitlab or a local folder or a remote url. Gollum for a wiki?
+  transform: ''             # Maybe some type of pre-processing
+  validate: ''              # Defaults to empty. List of validation scripts, for instance links,...
+  editor: 'github'          # What is the content authoring environment? Could be prose, realms,... 
+  generate: 'github-pages'  # How is the site generated. Could be github-pages, jekyll, metalsmith, hugo... 
+  publish: 'github-pages'   # Where is the content hosted? 
+  discuss: 'github-issues'  # Discussion threads, comments, wiki style discuss page...
+  review: 'github'          # Line based review like github code comments
   stats: 'piwik'
   dependencies: ''
 ```
@@ -87,7 +89,7 @@ Makefile, gulp, grunt...
 
 ## build
 
-In the simplest case the build component launches github-pages which depend on an external build system. It can also depend on other external build systems like travis, or use a more custom build with a custom static website generator, or in more complex cases it can mean assembling various components to for instance generate various outputs or orchestrate deployment of microservices. In that sense the build system could also include configuration management with ansible or docker compose.
+In the simplest case the build component uses github-pages which depend on an external build system. It can also depend on other external build systems like travis, or use a more custom build with a custom static website generator, or in more complex cases it can mean assembling various components to for instance generate various outputs or orchestrate deployment of microservices. In that sense the build system could also include configuration management with ansible or docker compose.
 
 Depending on the chosen build system, different targets will be available for the `publish` command to enable `docsmith publish android` or `docsmith publish pdf`.
 

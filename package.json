@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/contentascode/docsmith/issues"
   },
-  "homepage": "https://github.com/contentascode/docsmith#readme"
+  "homepage": "https://github.com/contentascode/docsmith#readme",
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
 }
