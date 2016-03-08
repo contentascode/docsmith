@@ -160,4 +160,8 @@ Configuration:
  - templates
 
 
+# Dependencies
+
+ - Uses https://github.com/mfenner/jekyll-travis configuration files for travis based build
+ -  
 
