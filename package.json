@@ -5,6 +5,7 @@
   "main": "docsmith.js",
   "bin": {
     "docsmith": "docsmith.js",
+    "docsmith-init": "docsmith-init.js",
     "docsmith-install": "docsmith-install.js",
     "docsmith-status": "docsmith-status.js"
   },
@@ -28,7 +29,9 @@
   "homepage": "https://github.com/contentascode/docsmith#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "js-yaml": "^3.5.3"
+    "js-yaml": "^3.5.3",
+    "nodegit": "^0.11.8",
+    "tmp": "0.0.28"
   },
   "devDependencies": {
     "cucumber": "^0.9.5"
