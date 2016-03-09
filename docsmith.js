@@ -5,9 +5,10 @@
  */
 
 var program = require('commander');
+var pjson = require('./package.json');
 
 program
-  .version('0.0.2')
+  .version(pjson.version)
   .option('-v, --verbose', 'Display additional log output')
 
 program
