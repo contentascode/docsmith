@@ -34,7 +34,7 @@ Is that it? Yes, now you'll receive emails with notifications each time there is
 
 ### Choose a theme
 
-You can change our default website layout and theme if you have activated Travis CI in the previous step. In that case, you can edit the docsmith.yml file and change the theme to another content as code enabled jekyll theme we support.
+You can change our default website layout and theme if you have activated Travis CI in the previous step. In that case, you can edit the `_content.yml` file and change the theme to another content as code enabled jekyll theme we support.
 
 ### What next?
 
@@ -49,7 +49,7 @@ If you want to go deeper into **docsmith** and content as code, you can also hel
  - ```docsmith init```: Or ```docsmith init <template>``` like ```docsmith init blog```, ```docsmith init doc``` or ```docsmith init wiki```.
  - ```docsmith install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
  - ```docsmith install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
- - ```docsmith install validator``` : Install default plugin suite in validator (linkchecker) or the one specified in the docsmith.yml file.
+ - ```docsmith install validator``` : Install default plugin suite in validator (linkchecker) or the one specified in the `_content.yml` file.
  - ```docsmith install validator styleguide```: Install specific plugin (and updates the yml file)
 
  - ```docsmith build```: Build the content locally.
@@ -62,17 +62,19 @@ If you want to go deeper into **docsmith** and content as code, you can also hel
  - ```docsmith save/push``` : Push content source updates and advertise changes.
  - ```docsmith save/push <version>``` : Push content source updates and advertise changes.
 
-Example ```docsmith.yml```:
+Example ```_content.yml```:
 
 ```yaml
 source: .                   # By default uses current directory, should be able to pull a remote directory too.
-build: 'github-pages'       # How is the build pipeline managed. could be travis, gitlab-ci, drone, local Makefile, gulp, grunt...
+implementation: 'docsmith'  # Which implementation of content as code?
 
 components:
-  source: 'github'          # Defaults to github could also be gitlab or a local folder or a remote url. Gollum for a wiki?
+  repository: 'github'          # Defaults to github could also be gitlab or a local folder or a remote url. Gollum for a wiki?
   transform: ''             # Maybe some type of pre-processing
   validate: ''              # Defaults to empty. List of validation scripts, for instance links,...
   editor: 'github'          # What is the content authoring environment? Could be prose, realms,... 
+  translate: 'transifex'  
+  build: 'github-pages'       # How is the build pipeline managed. could be travis, gitlab-ci, drone, local Makefile, gulp, grunt...
   generate: 'github-pages'  # How is the site generated. Could be github-pages, jekyll, metalsmith, hugo... 
   publish: 'github-pages'   # Where is the content hosted? 
   discuss: 'github-issues'  # Discussion threads, comments, wiki style discuss page...
@@ -119,6 +121,10 @@ Configures the build pipeline (for now metalsmith) with the proper and desired s
      - `repo`: 
          + `url` : (Required) URL of repo.
          + `branch`: (Optional - Defaults to master) 
+
+## build
+
+### API
 
 
 ## validate
