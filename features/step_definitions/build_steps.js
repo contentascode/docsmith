@@ -3,31 +3,44 @@ module.exports = function () {
   var execFile = require('child_process').execFile;
   var path = require('path');
   var git = require("nodegit");
+  var fs = require('fs');
+  var assert = require('assert')
 
   var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
 
-  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 10000}, function (branch, callback) {
+  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 30000}, function (branch, callback) {
     var world = this;
-    var cloneOptions = {};
 
-    cloneOptions.fetchOpts = {
-      checkoutBranch : branch,
-      callbacks: {
-        certificateCheck: function() { return 1; }
-      }
-    };
+    var url = "https://github.com/iilab/contentascode";
+    var clonePath = path.join(world.tmpDir, "repo");
+
+    function options(){
+        var nodegitOptions = {
+            checkoutBranch: branch,
+            fetchOpts: {
+              callbacks: {
+                certificateCheck: function() {
+                  return 1;
+              }
+            }
+          }
+        };
+
+        return nodegitOptions;
+    }
 
     // Clone a given repository into a temporary folder.
-    git.Clone("https://github.com/iilab/contentascode", path.join(world.tmpDir, "repo"), cloneOptions)
+    git.Clone(url, clonePath, options())
     // Look up this known commit.
     .then(function(repo) {
-      console.log('hi!')
+//      console.log(repo instanceof git.Repository);
+//      console.log('hi!')
       callback();
     })
     .catch(function(err) { console.log(err); });
   });
 
-  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 10000}, function (command, callback) {
+  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 20000}, function (command, callback) {
 
     command = command || '';
     var world = this;
@@ -44,45 +57,34 @@ module.exports = function () {
 
   });
 
-  this.Then(/^I should not have a "([^"]*)" file$/, function (arg1, callback) {
+  this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
+    console.log(fileExists())
+    console.log(!negate)
+
+    assert(fileExists(), !negate);
+    callback();
+  });
+
+  this.Then(/^I should( not)? have a "([^"]*)" file with "([^"]*)"$/, function (negate, file, text, callback) {
     // Write code here that turns the phrase above into concrete actions
     callback.pending();
   });
 
-  this.Then(/^I should not have a "([^"]*)" with "([^"]*)"$/, function (arg1, arg2, callback) {
+  this.Then(/^I should see "([^"]*)"$/, function (text, callback) {
     // Write code here that turns the phrase above into concrete actions
     callback.pending();
   });
 
-  this.Then(/^I should not have a "([^"]*)"$/, function (arg1, callback) {
-    // Write code here that turns the phrase above into concrete actions
-    callback.pending();
-  });
-
-  this.Then(/^I should see "([^"]*)"$/, function (arg1, callback) {
-    // Write code here that turns the phrase above into concrete actions
-    callback.pending();
-  });
-
-  this.Given(/^I start with docsmith init$/, function (callback) {
-    // Write code here that turns the phrase above into concrete actions
-    callback.pending();
-  });
-
-  this.Then(/^I should have a "([^"]*)" file$/, function (arg1, callback) {
-    // Write code here that turns the phrase above into concrete actions
-    callback.pending();
-  });
-
-  this.Then(/^I should have a "([^"]*)" with "([^"]*)"$/, function (arg1, arg2, callback) {
-    // Write code here that turns the phrase above into concrete actions
-    callback.pending();
-  });
-
-  this.Then(/^I should have a "([^"]*)"$/, function (arg1, callback) {
-    // Write code here that turns the phrase above into concrete actions
-    callback.pending();
-  });
-
+  function fileExists(filePath)
+  {
+      try
+      {
+          return fs.statSync(filePath).isFile();
+      }
+      catch (err)
+      {
+          return false;
+      }
+  }
 
 };
