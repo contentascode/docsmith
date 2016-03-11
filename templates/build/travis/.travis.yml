@@ -18,7 +18,7 @@ script: bundle exec rake site:deploy --quiet
 
 env:
   global:
-    secure: EXAMPLE
+    secure: {{ TRAVIS_SECURE_TOKEN }}
 
 # Generate your secure token with the travis gem:
 # get Github token from your Travis CI profile page
