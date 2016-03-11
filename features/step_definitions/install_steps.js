@@ -9,7 +9,7 @@ module.exports = function () {
   var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
 //  var executablePath = '/usr/local/bin/node';
 
-  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 30000}, function (branch, callback) {
+  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 5000}, function (branch, callback) {
     var world = this;
 
     var url = "https://github.com/iilab/contentascode";
@@ -38,10 +38,12 @@ module.exports = function () {
 //      console.log('hi!')
       callback();
     })
-    .catch(function(err) { console.log(err); });
+    .catch(function(err) { 
+      callback(err); 
+    });
   });
 
-  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 20000}, function (command, callback) {
+  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 3000}, function (command, callback) {
 
     command = command || '';
     var world = this;
@@ -59,7 +61,7 @@ module.exports = function () {
        };
        if (error) {
         console.log(stdout)
-        throw error;
+        callback(error);
        }
        callback();
      });
