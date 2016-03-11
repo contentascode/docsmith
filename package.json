@@ -1,6 +1,6 @@
 {
   "name": "docsmith",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Content as Code aims to make it easy to start a website in just a few steps but also build complex content publishing pipelines. It develops best practices to managing content workflows inspired from how code is managed in large collaborative software engineering projects. **Docsmith** implements the [Content as Code](https://contentascode.io) framework using metal*smith*, pan*doc* and *doc*ker microservice deployment.",
   "main": "docsmith.js",
   "bin": {
@@ -10,7 +10,7 @@
     "docsmith-status": "docsmith-status.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/cucumber/bin/cucumber.js features"
   },
   "repository": {
     "type": "git",
