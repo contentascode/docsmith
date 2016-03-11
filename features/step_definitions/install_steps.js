@@ -7,12 +7,13 @@ module.exports = function () {
   var assert = require('assert')
 
   var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
+//  var executablePath = '/usr/local/bin/node';
 
   this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 30000}, function (branch, callback) {
     var world = this;
 
     var url = "https://github.com/iilab/contentascode";
-    var clonePath = path.join(world.tmpDir, "repo");
+    var clonePath = path.join(world.tmpDir, "proj");
 
     function options(){
         var nodegitOptions = {
@@ -44,35 +45,50 @@ module.exports = function () {
 
     command = command || '';
     var world = this;
-    var cwd = path.join(world.tmpDir, "repo");
+    var cwd = path.join(world.tmpDir, "proj");
 
-    execFile(executablePath, command.split(' '), {cwd: cwd}, function (error, stdout, stderr) {
+    if (!folderExists(cwd)) {
+      fs.mkdirSync(cwd);
+    }
+
+    execFile(executablePath, command.split(' '), {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
        world.lastRun = {
          error:  error,
          stdout: stdout, //colors.strip(stdout),
          stderr: stderr
        };
+       if (error) {
+        console.log(stdout)
+        throw error;
+       }
        callback();
      });
 
   });
 
   this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
-    console.log(fileExists())
-    console.log(!negate)
-
-    assert(fileExists(), !negate);
-    callback();
+    assert.equal(fileExists(path.join(this.tmpDir, "proj", file)), !negate);
   });
 
-  this.Then(/^I should( not)? have a "([^"]*)" file with "([^"]*)"$/, function (negate, file, text, callback) {
+  this.Then(/^I should have a "([^"]*)" file with(out)? "([^"]*)"$/, function (file, negate, text, callback) {
     // Write code here that turns the phrase above into concrete actions
-    callback.pending();
+    var world = this;
+    var cwd = path.join(world.tmpDir, "repo");
+    var absoluteFilePath = path.join(world.tmpDir, "proj", file);
+    fs.readFile(absoluteFilePath, 'utf8', function (err, content){
+      if (err) { return callback(err); }
+
+      var fileContent = normalizeText(content);
+      expectedContent = normalizeText(text);
+
+      assert.equal(fileContent.indexOf(expectedContent) > -1, !negate);
+      callback();
+    });
   });
 
-  this.Then(/^I should see "([^"]*)"$/, function (text, callback) {
+  this.Then(/^I should see "([^"]*)"$/, function (text) {
     // Write code here that turns the phrase above into concrete actions
-    callback.pending();
+    assert.ok(this.lastRun.stdout.indexOf(text) > -1);
   });
 
   function fileExists(filePath)
@@ -85,6 +101,28 @@ module.exports = function () {
       {
           return false;
       }
+  }
+
+  function folderExists(folderPath)
+  {
+      try
+      {
+          return fs.statSync(folderPath).isDirectory();
+      }
+      catch (err)
+      {
+          return false;
+      }
+  }
+
+  function normalizeText(text) {
+    return text.replace(/\033\[[0-9;]*m/g, '')
+      .replace(/\r\n|\r/g, '\n')
+      .replace(/^\s+/g, '')
+      .replace(/\s+$/g, '')
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\\/g, '/')
+      .replace(/\d+m\d{2}\.\d{3}s/, '<duration-stat>');
   }
 
 };
