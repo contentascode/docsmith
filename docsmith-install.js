@@ -48,8 +48,9 @@ if (newSettings) {
   console.log('Saved new integration plugin');
   console.log(newSettings.integration)      
 } else {
+  // TODO Check that currently installed plugin configuration is sane.
   console.log('No modifications. Current integration plugin is');
-  console.log(curSettings.integration)      
+  console.log(curSettings.integration)
 }
 
 function install_integration(plugin, gh_token, curSet) {
@@ -94,9 +95,12 @@ function install_integration(plugin, gh_token, curSet) {
 
         travis_yml
           .then(lineinfile('Gemfile', components.LINE_TRAVIS_GEMFILE_RAKE))
-          .then(copyfile('build/travis/Rakefile'))
+          .then(copyfile('build/travis/Rakefile', 'Rakefile'))
           .then(function() {
             console.log('You have just installed travis')          
+            console.log('You will need to:')      
+            console.log(' - Push this folder to your repo (soon with `docsmith save`)')      
+            console.log(' - Activate travis for your repository')      
           }).catch(
           // Log the rejection reason
           function(reason) {
@@ -111,7 +115,7 @@ function install_integration(plugin, gh_token, curSet) {
 
     case "github-pages":
       if (!(plugin in curSet.integration)) {
-        curSet.components.build = plugin
+        curSet.integration.travis = settings.DEFAULT_GITHUB_PAGES;
         return curSet
       }
       break;
@@ -149,17 +153,22 @@ function create_travis_yml(gh_token, resolve, reject) {
       return config.getString("user.email");
     });
 
-  Promise.all([ promise_name, promise_email ] )
+  return Promise.all([ promise_name, promise_email ] )
     .then(function(values) {
+
+      var token = "TOKEN";
 
       git_name = process.env.GIT_NAME || values[0]
       git_email = process.env.GIT_EMAIL || values[1]    
 
       // Generate the travis encrypted variable to access Github.      
       try {
-        console.log("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
-        var stdout = cp.execSync("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
-        settings.env.global.secure = stdout.toString();
+        if (!curSettings.offline) {
+          console.log("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
+          var stdout = cp.execSync("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
+          token = stdout.toString()
+        }
+        settings.env.global.secure = token;
       } catch (e) {
         console.log('you need to have a working ruby environment and have installed the travis gem with `gem install travis`')
         reject(e);
@@ -173,13 +182,11 @@ function create_travis_yml(gh_token, resolve, reject) {
         reject(e);
       }
 
-    }, function(reason) {
-     reject(reason);
     });
 }
 
 function lineinfile(dest, line) {
-  new Promise(function(resolve,reject) {
+  return new Promise(function(resolve,reject) {
     // mimicking ansible lineinfile module API with state=present
     fs.readFile(dest, function (err, data) {
       if (err) reject(err);
@@ -189,6 +196,7 @@ function lineinfile(dest, line) {
       } else {
         fs.appendFile(dest, "\n" + line, function (err) {
           if (err) reject();
+          console.log(dest + " " + line + " added.")
           resolve();
         });
       }
@@ -196,10 +204,14 @@ function lineinfile(dest, line) {
   });
 }
 
-function copyfile(src) {
-  new Promise(function(resolve,reject) {
-    fs.copy(src, '.', function (err) {
+function copyfile(src, dest) {
+
+    // fs.copySync(path.join(templates.path, src), path.join(process.cwd(), src));
+
+  return new Promise(function(resolve,reject) {
+    fs.copy(path.join(templates.path, src), path.join(process.cwd(), dest), function (err) {
       if (err) reject(err);
+      console.log(path.join(templates.path, src) + " copied in " + path.join(process.cwd(), src))
       resolve();
     })    
   })
