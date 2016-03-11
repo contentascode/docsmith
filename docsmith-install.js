@@ -7,8 +7,9 @@
 var program = require('commander');
 var templates = require('./lib/templates');
 var settings = require('./lib/settings');
+var components = require('./lib/components');
 var yaml = require('js-yaml');
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 const cp = require('child_process');
 const git = require('nodegit');
@@ -32,30 +33,34 @@ program
 var newSettings;
 
 switch(component) {
-  case "build":
-    newSettings = install_build(plugin, gh_token, curSettings)
+  case "integration":
+    newSettings = install_integration(plugin, gh_token, curSettings)
     break;
   default:
-    console.log('%s is not a known component.')
+    console.log('%s is not a known component.', component);
+    process.exit();
 }
 
 // update settings file.
 
 if (newSettings) {
   settings.save(newSettings)
-  console.log('Saved new build plugin: %s', newSettings.components.build)      
+  console.log('Saved new integration plugin');
+  console.log(newSettings.integration)      
 } else {
-  console.log('No modifications. Current build plugin is: %s', curSettings.components.build)      
+  console.log('No modifications. Current integration plugin is');
+  console.log(curSettings.integration)      
 }
 
-function install_build(plugin, gh_token, curSet) {
+function install_integration(plugin, gh_token, curSet) {
   var result;
+
+  if (!curSet.integration) curSet.integration = {};
 
   switch(plugin) {
     case "travis":
-      if (curSet.components.build != plugin) {
-        curSet.components.build = plugin
-
+      if (!(plugin in curSet.integration)) {
+        curSet.integration.travis = settings.DEFAULT_TRAVIS;
 
         if (!program.gh_token) {
           if (!process.env.GH_TOKEN) {
@@ -70,39 +75,57 @@ function install_build(plugin, gh_token, curSet) {
         }
 
 
-        // needs to install and check necessary files - .travis.yml / Rake depending on other components.
+        // Install and check necessary files - .travis.yml / Rake depending on other components.
+        //
+        // For now this is a blend of trying to generate files, do idempotent file check a la ansible
+        // and just copying template files.
+        //
+        // Later for moving between configurations, things might be different. For instance with Travis,
+        // given we're using the https://github.com/mfenner/jekyll-travis approach, the server side build is using Rake.
+        // Maybe this should be parameterised to be able to change build system and compose different components.
+        // One of the big factors is if there is a linear build pipe a la metalsmith, or if we have a tree which will
+        // necessitate more of a Make or equivalent approach.
 
-        var result = new Promise(function(resolve,reject) {
+        var travis_yml = new Promise(function(resolve,reject) {
+          // This builds the yaml in memory including the secure token and writes the file
+          // It could also use a moustache style template in build/travis/.travis.yml
           create_travis_yml(gh_token, resolve, reject)
         });
-        result.then(function() {
-          console.log('You have just installed travis')          
-        }).catch(
-        // Log the rejection reason
-        function(reason) {
-          console.log('Problem installing the travis build component')
-          console.log(reason);
-        });
+
+        travis_yml
+          .then(lineinfile('Gemfile', components.LINE_TRAVIS_GEMFILE_RAKE))
+          .then(copyfile('build/travis/Rakefile'))
+          .then(function() {
+            console.log('You have just installed travis')          
+          }).catch(
+          // Log the rejection reason
+          function(reason) {
+            console.log('Problem installing the travis build component')
+            console.log(reason);
+          });
 
         return curSet
       }
 
       break;
+
     case "github-pages":
-      if (curSet.components.build != plugin) {
+      if (!(plugin in curSet.integration)) {
         curSet.components.build = plugin
         return curSet
       }
       break;
     default:
-      if (curSet.components.build) {
-        console.log('Current build plugin is: %s', curSet.components.build)
-        return null
+      if (curSet.integration == {}) {
+        console.log('Current integration plugin configuration is')
+        console.log(curSet.integration)
+        process.exit()
       }
       else {
-        console.log('No build plugin currently installed. Please specify a plugin to install a build component.')
+        console.log('No integration plugin currently installed. Please specify a plugin to install a build component.')
         console.log('For instance to enable the travis plugin use :')
         console.log('$ docsmith install build travis')
+        process.exit()
       }
   }
 }
@@ -154,3 +177,32 @@ function create_travis_yml(gh_token, resolve, reject) {
      reject(reason);
     });
 }
+
+function lineinfile(dest, line) {
+  new Promise(function(resolve,reject) {
+    // mimicking ansible lineinfile module API with state=present
+    fs.readFile(dest, function (err, data) {
+      if (err) reject(err);
+      if(data.toString().indexOf(line) > -1){
+        // Should use ansible regexp feature to deal with versions. 
+        resolve();
+      } else {
+        fs.appendFile(dest, "\n" + line, function (err) {
+          if (err) reject();
+          resolve();
+        });
+      }
+    });
+  });
+}
+
+function copyfile(src) {
+  new Promise(function(resolve,reject) {
+    fs.copy(src, '.', function (err) {
+      if (err) reject(err);
+      resolve();
+    })    
+  })
+}
+
+

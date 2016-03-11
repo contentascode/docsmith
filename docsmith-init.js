@@ -19,6 +19,5 @@ program
 if (template) {
   console.log('something with a template')
 } else {
-  console.log('before init')
   templates.init();
 }

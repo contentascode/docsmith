@@ -29,6 +29,7 @@
   "homepage": "https://github.com/contentascode/docsmith#readme",
   "dependencies": {
     "commander": "^2.9.0",
+    "fs-extra": "^0.26.5",
     "js-yaml": "^3.5.3",
     "nodegit": "^0.11.8",
     "tmp": "0.0.28"

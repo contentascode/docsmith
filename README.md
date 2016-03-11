@@ -65,22 +65,87 @@ If you want to go deeper into **docsmith** and content as code, you can also hel
 Example ```_content.yml```:
 
 ```yaml
-source: .                   # By default uses current directory, should be able to pull a remote directory too.
+
 implementation: 'docsmith'  # Which implementation of content as code?
 
-components:
-  repository: 'github'          # Defaults to github could also be gitlab or a local folder or a remote url. Gollum for a wiki?
-  transform: ''             # Maybe some type of pre-processing
-  validate: ''              # Defaults to empty. List of validation scripts, for instance links,...
-  editor: 'github'          # What is the content authoring environment? Could be prose, realms,... 
-  translate: 'transifex'  
-  build: 'github-pages'       # How is the build pipeline managed. could be travis, gitlab-ci, drone, local Makefile, gulp, grunt...
-  generate: 'github-pages'  # How is the site generated. Could be github-pages, jekyll, metalsmith, hugo... 
-  publish: 'github-pages'   # Where is the content hosted? 
-  discuss: 'github-issues'  # Discussion threads, comments, wiki style discuss page...
-  review: 'github'          # Line based review like github code comments
+#
+# Sources
+# 
+#   Source repositories which contain the sources for the current project. 
+#   Note: These are not upstream dependencies which will be managed with metadata inside 
+#   and alongside the source files.
+#
+
+sources:                    
+  - type: 'github'          # Defaults to github could also be gitlab or a local folder. Gollum for a wiki?
+    url: 'https://github.com/iilab/contentascode'
+    transform: ''           # There could be some type of processing when query APIs or scraping...
+    path: '.'               # Binds to authoring path.
+
+#
+# Author
+#   
+#   This is where the content is edited, manipulated and so on. Different authoring environment will have
+#   different capabilities (for instance for validation without a server round-trip or workflow aspects...).
+#   See the lib/components.js file for a first attempt at modeling these capabilities.
+#
+
+authoring:                  # What is the content authoring environment? Could be prose, realms,...
+  - type: 'local'           # Maybe editor plugins could be proposed for desktop based edition.
+  - type: 'github'
+  - type: 'prose'           
+
+translation:
+  - type: 'transifex'
+
+#
+# Integrate
+#   
+#   These are the tools used to prepare and validate content and give feedback to authors and editors,
+#   including presenting staging or testing environments/artifacts of various versions that are being worked on.
+#   Note: Maybe this should be included in the publish component.
+
+integration:                  # Defaults to empty. Can be travis, or gitlab-ci
+  local:
+    build: ''               # Which tool is orchestrating local integration tests.
+    validate:               # Defaults to empty. List of validation scripts, for instance links,...
+      - 'links'
+  travis:          
+    branch: 'versions/*'
+    build: 'rake'           # Which tool is orchestrating integration 
+    validate:
+      - 'links'
+  shared:                 # Shared component for isomorphic validations?
+    validate:
+      * 'links'
+
+#
+# Publish
+#   
+#   These are the various channels where published versions will be available from.
+#
+
+publishing:
+  - type: 'github-pages'
+    url: 'http://iilab.github.io/contentascode'
+    build: 'jekyll-github-pages' # Probably useless as its part of capabilities.
+    branch: 'gh-pages'
+  - type: 'scp'
+    files: 'ssh://server.example.org/:/var/www/my_site'
+    url: 'https://www.example.org'
+
+#
+# Services
+#   
+#   These are various additional services that are linked to various features that are useful
+#   for 
+#
+
+services:
+  discuss: 'github'  # Discussion threads, comments, wiki style discuss page...
+  review: 'github'          # Line based review like github code comments, could be gitlab...
   stats: 'piwik'
-  dependencies: ''
+
 ```
 
  - ```docsmith modules``` : display list of available modules.
