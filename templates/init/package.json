@@ -1,0 +1,23 @@
+{
+  "name": "docsmith-init",
+  "version": "0.0.1",
+  "description": "Empty project for docsmith",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ../build",
+    "build": "jekyll build",
+    "test": "echo \"Do some validations...\"",
+    "deploy": "npm run build && npm test && npm run deploy-gh-pages",
+    "deploy-gh-pages": "git clone --quiet https://$GH_USERNAME:$GH_TOKEN@github.com/${CONFIG_OWNER}/${CONFIG_REPO} ../build > /dev/null 2>&1 &&  cp -R _site/* ../build && cd ../build && git config user.email \"$GIT_EMAIL\" && git config user.name \"$GIT_NAME\" && git add -A . && git commit -a -m \"Travis build $TRAVIS_BUILD_NUMBER.\" && git push --quiet origin master > /dev/null 2>&1\n"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/contentascode/docsmith-init.git"
+  },
+  "author": "Jun Matsushita (iilab.org)",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/contentascode/docsmith-init/issues"
+  },
+  "homepage": "https://github.com/contentascode/docsmith-init#readme"
+}
