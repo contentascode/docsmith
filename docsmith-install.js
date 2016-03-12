@@ -60,7 +60,11 @@ function install_integration(plugin, gh_token, curSet) {
 
   switch(plugin) {
     case "travis":
-      if (!(plugin in curSet.integration)) {
+      // TODO: Check if there are any needed updates. This should probably just be a call to a trusted build system
+      // For now just rerun configuration creation all the time.
+
+      // if (!(plugin in curSet.integration)) {
+      if (true) {
         curSet.integration.travis = settings.DEFAULT_TRAVIS;
 
         if (!program.gh_token) {
@@ -75,7 +79,6 @@ function install_integration(plugin, gh_token, curSet) {
           gh_token = program.gh_token 
         }
 
-
         // Install and check necessary files - .travis.yml / Rake depending on other components.
         //
         // For now this is a blend of trying to generate files, do idempotent file check a la ansible
@@ -89,13 +92,13 @@ function install_integration(plugin, gh_token, curSet) {
 
         var travis_yml = new Promise(function(resolve,reject) {
           // This builds the yaml in memory including the secure token and writes the file
-          // It could also use a moustache style template in build/travis/.travis.yml
+          // It could also use a moustache style template in integration/travis/.travis.yml
           create_travis_yml(gh_token, resolve, reject)
         });
 
         travis_yml
           .then(lineinfile('Gemfile', components.LINE_TRAVIS_GEMFILE_RAKE))
-          .then(copyfile('build/travis/Rakefile', 'Rakefile'))
+          .then(npm_build('integration/travis/npm_build.yml', 'package.json'))
           .then(function() {
             console.log('You have just installed travis')          
             console.log('You will need to:')      
@@ -109,7 +112,7 @@ function install_integration(plugin, gh_token, curSet) {
           });
 
         return curSet
-      }
+      } 
 
       break;
 
@@ -135,12 +138,10 @@ function install_integration(plugin, gh_token, curSet) {
 }
 
 function create_travis_yml(gh_token, resolve, reject) {
-  var settings = {
-    language: 'ruby',
-    install: ['bundle install'],
-    script: 'bundle exec rake site:deploy --quiet',
-    env: { global : { secure: ''}}
-  }
+  // TODO: Refactor to separate file merge from token generation. Use Object.assign approach like for npm_build.
+
+
+  var travis_yml = yaml.safeLoad(fs.readFileSync(path.join(templates.path, 'integration/travis/.travis.yml'), 'utf8'));
 
   var git_name, git_email;
 
@@ -162,6 +163,10 @@ function create_travis_yml(gh_token, resolve, reject) {
       git_name = process.env.GIT_NAME || values[0]
       git_email = process.env.GIT_EMAIL || values[1]    
 
+      travis_yml.env.GH_USERNAME = process.env.GH_USERNAME || '';
+      travis_yml.env.CONFIG_OWNER = process.env.CONFIG_OWNER || '';
+      travis_yml.env.CONFIG_REPO = process.env.CONFIG_REPO || '';
+
       // Generate the travis encrypted variable to access Github.      
       try {
         if (!curSettings.offline) {
@@ -169,7 +174,7 @@ function create_travis_yml(gh_token, resolve, reject) {
           var stdout = cp.execSync("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
           token = stdout.toString()
         }
-        settings.env.global.secure = token;
+        travis_yml.env.global.secure = token;
       } catch (e) {
         console.log('you need to have a working ruby environment and have installed the travis gem with `gem install travis`')
         reject(e);
@@ -177,7 +182,7 @@ function create_travis_yml(gh_token, resolve, reject) {
 
       // write the .travis.yml file.
       try {
-        fs.writeFileSync('./.travis.yml', yaml.safeDump(settings), 'utf8')
+        fs.writeFileSync('./.travis.yml', yaml.safeDump(travis_yml), 'utf8')
         resolve();
       } catch (e) {
         reject(e);
@@ -203,6 +208,24 @@ function lineinfile(dest, line) {
       }
     });
   });
+}
+
+function npm_build(src, dest) {
+
+  return new Promise(function(resolve,reject) {
+    var npm_build = yaml.safeLoad(fs.readFileSync(path.join(templates.path, src), 'utf8'));
+
+    fs.readFile(dest, function (err, data) {
+      if (err) reject(err);
+      var package = JSON.parse(data.toString());
+
+      fs.writeFile('package.json', JSON.stringify(Object.assign(package, npm_build), null, '  '), 'utf8', function (err) {
+        if (err) reject(err);
+        console.log("package.json updated")
+        resolve();
+      })
+    })
+  })
 }
 
 function copyfile(src, dest) {

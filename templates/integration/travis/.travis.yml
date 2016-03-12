@@ -1,4 +1,6 @@
-language: ruby
+language: node_js
+cache: bundler
+sudo: false
 
 install:
   # Install binary pandoc from Rstudio
@@ -12,9 +14,9 @@ install:
   # - pandoc --version
 
   # Install Jekyll and dependencies
+  - rvm use .
   - bundle install
 
-script: bundle exec rake site:deploy --quiet
 
 env:
   global:
