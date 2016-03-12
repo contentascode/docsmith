@@ -47,14 +47,18 @@ gems:
 
 # Settings for deploy rake task
 # Username and repo of Github repo, e.g.
-# https://github.com/USERNAME/REPO.git
-# username defaults to ENV['GIT_NAME'] used by Travis
-# repo defaults to USERNAME.github.io
-# Branch defaults to "source" for USERNAME.github.io
+# https://github.com/OWNER/REPO.git
+# username is user linked to the personal access token for pushing to the github-pages branch
+# ownner is the user or organisation for the project. 
+# repo is the name of the repo for the project.
+# Branch defaults to "source" for OWNER.github.io
 # or "master" otherwise
-#username: EXAMPLE
-repo: contentascode
-#branch: source
+
+username: USER
+owner: ORG
+repo: REPO
+
+# branch: source
 
 # Settings for deploy rake task
 # This destination folder is probably not necessary and we should either migrate out of jekyll-travis
