@@ -11,6 +11,9 @@ language: node_js
 #   - "0.10"
 #   - "iojs"
 
+install:
+  - npm -g install npm@latest-2
+
 sudo: false
 
 addons:
