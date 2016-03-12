@@ -138,6 +138,7 @@ function create_travis_yml(gh_token, resolve, reject) {
   var settings = {
     language: 'ruby',
     install: ['bundle install'],
+    script: 'bundle exec rake site:deploy --quiet',
     env: { global : { secure: ''}}
   }
 
