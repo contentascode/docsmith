@@ -69,7 +69,7 @@ destination: ../build
 
 safe: false
 lsi: false
-pygments: true
+# pygments: true
 
 exclude:
   - README.md
