@@ -103,6 +103,7 @@ function install_integration(plugin, gh_token, curSet) {
           function(reason) {
             console.log('Problem installing the travis build component')
             console.log(reason);
+            process.exit(1)
           });
 
         return curSet
@@ -183,7 +184,7 @@ function create_travis_yml(gh_token, resolve, reject) {
           }
           travis_yml.env.global.push({ secure: token });
         } catch (e) {
-          console.log('you need to have a working ruby environment and have installed the travis gem with `gem install travis`')
+          console.log('You need to have a working ruby environment and have installed the travis gem with `gem install travis`')
           reject(e);
         }
 
