@@ -70,7 +70,6 @@ module.exports = function () {
   });
 
   this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
-    console.log(path.join(this.tmpDir, "proj", file))
     assert.equal(fileExists(path.join(this.tmpDir, "proj", file)), !negate);
   });
 
