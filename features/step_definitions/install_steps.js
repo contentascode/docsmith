@@ -9,7 +9,7 @@ module.exports = function () {
   var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
 //  var executablePath = '/usr/local/bin/node';
 
-  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 5000}, function (branch, callback) {
+  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 10000}, function (branch, callback) {
     var world = this;
 
     var url = "https://github.com/iilab/contentascode";
@@ -69,6 +69,7 @@ module.exports = function () {
   });
 
   this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
+    console.log(path.join(this.tmpDir, "proj", file))
     assert.equal(fileExists(path.join(this.tmpDir, "proj", file)), !negate);
   });
 

@@ -215,9 +215,17 @@ function npm_build(src, dest) {
   return new Promise(function(resolve,reject) {
     var npm_build = yaml.safeLoad(fs.readFileSync(path.join(templates.path, src), 'utf8'));
 
+    // what if there is no package.json?
     fs.readFile(dest, function (err, data) {
-      if (err) reject(err);
-      var package = JSON.parse(data.toString());
+      var package = {};
+      if (err) {
+        if (err.code != 'ENOENT') {
+          reject(err);
+          return;
+        } 
+      } else {
+        package = JSON.parse(data.toString());        
+      }
 
       fs.writeFile(dest, JSON.stringify(Object.assign(package, npm_build), null, '  '), 'utf8', function (err) {
         if (err) reject(err);
@@ -234,8 +242,15 @@ function jekyll_config(src, dest) {
     var jekyll_config = yaml.safeLoad(fs.readFileSync(path.join(templates.path, src), 'utf8'));
 
     fs.readFile(dest, function (err, data) {
-      if (err) reject(err);
-      var _config = yaml.safeLoad(data.toString());
+      var _config = {};
+      if (err) {
+        if (err.code != 'ENOENT') {
+          reject(err);
+          return;
+        } 
+      } else {
+        _config = yaml.safeLoad(data.toString());
+      }
 
       jekyll_config.url = 'http://' + process.env.CONFIG_OWNER + '.github.io';
       jekyll_config.baseurl = '/' + process.env.CONFIG_REPO;
