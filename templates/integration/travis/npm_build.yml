@@ -7,21 +7,19 @@ scripts:
 
     test: npm run build && echo "Do some validations..."
 
-    deploy: npm run deploy-git-config && npm run deploy-gh-pages
+    deploy: npm run deploy-gh-pages
 
     # clone `master' branch of the repository using encrypted GH_TOKEN for authentification
     # copy generated HTML site to `master' branch
     # commit and push generated content to `master' branch
     # since repository was cloned in write mode with token auth - we can push there
-    deploy-git-config: >
-        echo "$GIT_EMAIL $GIT_NAME" &&
-        git config --global user.email "$GIT_EMAIL" &&
-        git config --global user.name "$GIT_NAME"
 
     deploy-gh-pages: >
         git clone --quiet https://$GH_USERNAME:$GH_TOKEN@github.com/${CONFIG_OWNER}/${CONFIG_REPO} ../build && 
         cp -R _site/* ../build &&
         cd ../build &&
+        git config user.email "$GIT_EMAIL" &&
+        git config user.name "$GIT_NAME" &&
         git add -A . &&
         git commit -a -m "Travis build $TRAVIS_BUILD_NUMBER." &&
         git push --quiet origin master > /dev/null
