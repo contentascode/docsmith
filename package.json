@@ -1,40 +1,24 @@
 {
-  "name": "docsmith",
-  "version": "0.0.7",
-  "description": "Content as Code aims to make it easy to start a website in just a few steps but also build complex content publishing pipelines. It develops best practices to managing content workflows inspired from how code is managed in large collaborative software engineering projects. **Docsmith** implements the [Content as Code](https://contentascode.io) framework using metal*smith*, pan*doc* and *doc*ker microservice deployment.",
-  "main": "docsmith.js",
-  "bin": {
-    "docsmith": "docsmith.js",
-    "docsmith-init": "docsmith-init.js",
-    "docsmith-install": "docsmith-install.js",
-    "docsmith-status": "docsmith-status.js"
-  },
+  "name": "docsmith-init",
+  "version": "0.0.1",
+  "description": "Empty project for docsmith",
+  "main": "index.js",
   "scripts": {
-    "test": "node_modules/cucumber/bin/cucumber.js features"
+    "clean": "rimraf ../build",
+    "build": "jekyll build",
+    "test": "npm run build && echo \"Do some validations...\"",
+    "deploy": "npm run deploy-git-config && npm run deploy-gh-pages",
+    "deploy-git-config": "echo \"$GIT_EMAIL $GIT_NAME\" && git config --global user.email \"$GIT_EMAIL\" && git config --global user.name \"$GIT_NAME\"\n",
+    "deploy-gh-pages": "git clone --quiet https://$GH_USERNAME:$GH_TOKEN@github.com/${CONFIG_OWNER}/${CONFIG_REPO} ../build &&  cp -R _site/* ../build && cd ../build && git add -A . && git commit -a -m \"Travis build $TRAVIS_BUILD_NUMBER.\" && git push --quiet origin master > /dev/null\n"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/contentascode/docsmith.git"
+    "url": "git+https://github.com/contentascode/docsmith-init.git"
   },
-  "keywords": [
-    "content",
-    "management",
-    "documentation"
-  ],
-  "author": "Jun Matsushita (https://iilab.org)",
+  "author": "Jun Matsushita (iilab.org)",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/contentascode/docsmith/issues"
+    "url": "https://github.com/contentascode/docsmith-init/issues"
   },
-  "homepage": "https://github.com/contentascode/docsmith#readme",
-  "dependencies": {
-    "commander": "^2.9.0",
-    "fs-extra": "^0.26.5",
-    "js-yaml": "^3.5.3",
-    "nodegit": "^0.11.8",
-    "tmp": "0.0.28"
-  },
-  "devDependencies": {
-    "cucumber": "^0.9.5"
-  }
+  "homepage": "https://github.com/contentascode/docsmith-init#readme"
 }
