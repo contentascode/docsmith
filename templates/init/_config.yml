@@ -65,8 +65,6 @@ repo: REPO
 # (which might be a good idea to avoid rake+metalsmith+...) or submit a pull request to default this to 
 # a temp folder of some sort.
 
-destination: ../build
-
 safe: false
 lsi: false
 # pygments: true
