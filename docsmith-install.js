@@ -145,11 +145,19 @@ function create_travis_yml(gh_token, resolve, reject) {
     var promise_name = git.Config.openDefault()
       .then(function(config) {
         return config.getString("user.name");
+      }).catch(function(err) {
+        console.log("Problem with git configuration. Have set your user.email? You can use:")
+        console.log("git config user.name 'Your Name'")
+        console.log(err)
       });
 
     var promise_email = git.Config.openDefault()
       .then(function(config) {
         return config.getString("user.email");
+      }).catch(function(err) {
+        console.log("Problem with git configuration. Have set your user.email? You can use:")
+        console.log("git config user.email 'you@email.net'")
+        console.log(err)
       });
 
     return Promise.all([ promise_name, promise_email ] )
