@@ -23,3 +23,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libstdc++-4.9-dev
+
+env:
+  global:
+    - GH_TOKEN=FAKE_TOKEN_FOR_TESTS
