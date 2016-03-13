@@ -19,14 +19,21 @@ var curSettings = settings.settings
 var component, plugin, gh_token;
 
 program
-  .arguments('[component] [plugin]')
+  .description('install one or more components with their default settings or a specific plugin')
   .option('--git-name <git_name>', 'Overrides the current git user name or GIT_NAME env variable for the travis plugin')
   .option('--git-email <git_email>', 'Overrides the current git email or GIT_EMAIL env variablefor the travis plugin')
   .option('--gh-token <github_token>', 'Overrides GH_TOKEN env variable for the travis plugin')
-  .description('install one or more components with their default settings or a specific plugin')
-  .action(function(comp,plug) {
-    component = comp;
-    plugin = plug;
+  .option('--test', 'Bypasses specific tasks for test runs')
+  .arguments('[component] [plugin]')
+  .action(function(comp,plug,options) {
+    // Temporary fix for https://github.com/tj/commander.js/issues/508
+    // component = comp;
+    // plugin = plug;
+    plugin = comp;
+    component = plug;
+    console.log(comp)
+    console.log(plug)
+    console.log(options.test)
   })
   .parse(process.argv);
 
@@ -68,7 +75,7 @@ function install_integration(plugin, gh_token, curSet) {
         curSet.integration.travis = settings.DEFAULT_TRAVIS;
 
         if (!program.gh_token) {
-          if (!process.env.GH_TOKEN) {
+          if (!process.env.GH_TOKEN && !program.test) {
             console.log('Travis requires a Github Authentication Token in order to publish your website to Github Pages')
             console.log('The GH_TOKEN environment variable needs to be set, or the --gh-token option needs to be used.')
             process.exit(1);
@@ -177,7 +184,7 @@ function create_travis_yml(gh_token, resolve, reject) {
 
         // Generate the travis encrypted variable to access Github.      
         try {
-          if (!curSettings.offline) {
+          if (!curSettings.offline && !program.test) {
             //console.log("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
             var stdout = cp.execSync("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
             token = stdout.toString()

@@ -59,8 +59,6 @@ module.exports = function () {
          stdout: stdout, //colors.strip(stdout),
          stderr: stderr
        };
-      console.log(stdout)
-      console.log(stderr)
        if (error) {
         console.log(stdout)
         console.log(stderr)
