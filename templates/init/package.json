@@ -7,9 +7,10 @@
     "clean": "rimraf build",
     "build": "jekyll build",
     "test": "npm run build && echo \"Do some validations...\"",
-    "deploy": "npm run deploy-gh-pages && npm run deploy-push",
-    "deploy-gh-pages": "git clone --quiet --branch 'gh-pages' https://github.com/${CONFIG_OWNER}/${CONFIG_REPO} build &&  cp -R _site/* build && cd build && git config user.email \"$GIT_EMAIL\" && git config user.name \"$GIT_NAME\" && git add -A . && git commit -a -m \"Travis build $TRAVIS_BUILD_NUMBER.\"\n",
-    "deploy-push": "git push --quiet https://$GH_USERNAME:$GH_TOKEN@github.com/${CONFIG_OWNER}/${CONFIG_REPO} gh-pages \n"
+    "deploy": "npm run deploy-clone && npm run deploy-prepare && npm run deploy-push",
+    "deploy-clone": "echo https://github.com/$CONFIG_OWNER/$CONFIG_REPO.git && echo https://github.com/${CONFIG_OWNER}/${CONFIG_REPO}.git && git clone --branch 'gh-pages' https://github.com/${CONFIG_OWNER}/${CONFIG_REPO}.git build",
+    "deploy-prepare": "cp -R _site/* build && cd build && git config user.email \"$GIT_EMAIL\" && git config user.name \"$GIT_NAME\" && git add -A . && git commit -a -m \"Travis build $TRAVIS_BUILD_NUMBER.\"\n",
+    "deploy-push": "git push --quiet 'https://$GH_USERNAME:$GH_TOKEN@github.com/$CONFIG_OWNER/$CONFIG_REPO.git' gh-pages \n"
   },
   "repository": {
     "type": "git",

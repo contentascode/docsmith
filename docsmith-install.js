@@ -187,6 +187,9 @@ function create_travis_yml(gh_token, resolve, reject) {
           reject(e);
         }
 
+      })
+      .catch(function(err) {
+        console.log(err)
       });
     });
 }
