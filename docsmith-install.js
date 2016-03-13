@@ -79,19 +79,19 @@ function install_integration(plugin, gh_token, curSet) {
           gh_token = program.gh_token 
         }
 
-        // Install and check necessary files - .travis.yml / Rake depending on other components.
+        // Install and check necessary files - .travis.yml 
         //
         // For now this is a blend of trying to generate files, do idempotent file check a la ansible
         // and just copying template files.
         //
-        // Later for moving between configurations, things might be different. For instance with Travis,
-        // given we're using the https://github.com/mfenner/jekyll-travis approach, the server side build is using Rake.
+        // Later for moving between configurations, things might be different. Using npm build for now.
+        //
         // Maybe this should be parameterised to be able to change build system and compose different components.
         // One of the big factors is if there is a linear build pipe a la metalsmith, or if we have a tree which will
         // necessitate more of a Make or equivalent approach.
 
         create_travis_yml(gh_token)
-          .then(lineinfile('Gemfile', components.LINE_TRAVIS_GEMFILE_RAKE))
+          .then(jekyll_config('integration/travis/_config.yml', '_config.yml'))
           .then(npm_build('integration/travis/npm_build.yml', 'package.json'))
           .then(function() {
             console.log('You have just installed travis')          
@@ -219,14 +219,37 @@ function npm_build(src, dest) {
       if (err) reject(err);
       var package = JSON.parse(data.toString());
 
-      fs.writeFile('package.json', JSON.stringify(Object.assign(package, npm_build), null, '  '), 'utf8', function (err) {
+      fs.writeFile(dest, JSON.stringify(Object.assign(package, npm_build), null, '  '), 'utf8', function (err) {
         if (err) reject(err);
-        console.log("package.json updated")
+        console.log(dest + " updated")
         resolve();
       })
     })
   })
 }
+
+function jekyll_config(src, dest) {
+
+  return new Promise(function(resolve,reject) {
+    var jekyll_config = yaml.safeLoad(fs.readFileSync(path.join(templates.path, src), 'utf8'));
+
+    fs.readFile(dest, function (err, data) {
+      if (err) reject(err);
+      var _config = yaml.safeLoad(data.toString());
+
+      jekyll_config.url = 'http://' + process.env.CONFIG_OWNER + '.github.io';
+      jekyll_config.baseurl = '/' + process.env.CONFIG_REPO;
+      jekyll_config.github.repo = 'https://github.com/' + process.env.CONFIG_OWNER + '/' + process.env.CONFIG_REPO;
+
+      fs.writeFile(dest, yaml.safeDump(Object.assign(_config, jekyll_config), null, '  '), 'utf8', function (err) {
+        if (err) reject(err);
+        console.log(dest + " updated")
+        resolve();
+      })
+    })
+  })
+}
+
 
 function copyfile(src, dest) {
 

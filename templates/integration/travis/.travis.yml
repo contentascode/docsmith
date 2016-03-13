@@ -2,6 +2,10 @@ language: node_js
 cache: bundler
 sudo: false
 
+branches:
+  except:
+    - gh-pages
+
 install:
   # Install binary pandoc from Rstudio
   # To use Pandoc, uncomment the following

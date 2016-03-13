@@ -1,13 +1,13 @@
 scripts:
     # cleanup
-    clean: rimraf ../build
+    clean: rimraf build
 
     # build site with jekyll, by default to `_site' folder
     build: jekyll build
 
     test: npm run build && echo "Do some validations..."
 
-    deploy: npm run deploy-gh-pages
+    deploy: npm run deploy-gh-pages && npm run deploy-push
 
     # clone `master' branch of the repository using encrypted GH_TOKEN for authentification
     # copy generated HTML site to `master' branch
@@ -15,11 +15,12 @@ scripts:
     # since repository was cloned in write mode with token auth - we can push there
 
     deploy-gh-pages: >
-        git clone --quiet https://$GH_USERNAME:$GH_TOKEN@github.com/${CONFIG_OWNER}/${CONFIG_REPO} ../build && 
-        cp -R _site/* ../build &&
-        cd ../build &&
+        git clone --quiet --branch 'gh-pages' https://github.com/${CONFIG_OWNER}/${CONFIG_REPO} build && 
+        cp -R _site/* build &&
+        cd build &&
         git config user.email "$GIT_EMAIL" &&
         git config user.name "$GIT_NAME" &&
         git add -A . &&
-        git commit -a -m "Travis build $TRAVIS_BUILD_NUMBER." &&
-        git push --quiet origin master > /dev/null
+        git commit -a -m "Travis build $TRAVIS_BUILD_NUMBER."
+    deploy-push: >
+        git push --quiet https://$GH_USERNAME:$GH_TOKEN@github.com/${CONFIG_OWNER}/${CONFIG_REPO} gh-pages 
