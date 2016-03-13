@@ -5,7 +5,7 @@ Feature: docsmith install build
 
   Scenario: Starting from scratch
     When I run docsmith "init"
-    Then I should not have a ".travis.yml" file
+    Then I should have a ".travis.yml" file
     And I should have a "Gemfile" file without "rake"
     And I should not have a "Rakefile" file
 
@@ -21,6 +21,10 @@ Feature: docsmith install build
   #   And I should have a "Gemfile" file with "rake"
 
   # Should fail with 'Can't figure out GitHub repo name'
+
+  # TODO:
+  #   Test for Travis repository not known to https://api.travis-ci.org/: contentascode/docsmith-init
+  #   Test for gh-pages branch not being created yet error: pathspec 'gh-pages' did not match any file(s) known to git.
 
   Scenario: Starting with a github-pages build
     Given I clone the contentascode "fixture/build-github-pages" branch
