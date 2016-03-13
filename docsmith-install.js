@@ -27,13 +27,13 @@ program
   .arguments('[component] [plugin]')
   .action(function(comp,plug,options) {
     // Temporary fix for https://github.com/tj/commander.js/issues/508
-    // component = comp;
-    // plugin = plug;
-    plugin = comp;
-    component = plug;
-    console.log(comp)
-    console.log(plug)
-    console.log(options.test)
+    if (options.test && plug) {
+      plugin = comp;
+      component = plug;
+    } else {
+      component = comp;
+      plugin = plug;
+    }
   })
   .parse(process.argv);
 
