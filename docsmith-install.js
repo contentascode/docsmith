@@ -46,7 +46,7 @@ switch(component) {
 if (newSettings) {
   settings.save(newSettings)
   console.log('Saved new integration plugin');
-  console.log(newSettings.integration)      
+  //console.log(newSettings.integration)      
 } else {
   // TODO Check that currently installed plugin configuration is sane.
   console.log('No modifications. Current integration plugin is');
@@ -90,13 +90,7 @@ function install_integration(plugin, gh_token, curSet) {
         // One of the big factors is if there is a linear build pipe a la metalsmith, or if we have a tree which will
         // necessitate more of a Make or equivalent approach.
 
-        var travis_yml = new Promise(function(resolve,reject) {
-          // This builds the yaml in memory including the secure token and writes the file
-          // It could also use a moustache style template in integration/travis/.travis.yml
-          create_travis_yml(gh_token, resolve, reject)
-        });
-
-        travis_yml
+        create_travis_yml(gh_token)
           .then(lineinfile('Gemfile', components.LINE_TRAVIS_GEMFILE_RAKE))
           .then(npm_build('integration/travis/npm_build.yml', 'package.json'))
           .then(function() {
@@ -138,56 +132,62 @@ function install_integration(plugin, gh_token, curSet) {
 }
 
 function create_travis_yml(gh_token, resolve, reject) {
-  // TODO: Refactor to separate file merge from token generation. Use Object.assign approach like for npm_build.
+  return new Promise(function(resolve,reject) {
+            // This builds the yaml in memory including the secure token and writes the file
+            // It could also use a moustache style template in integration/travis/.travis.yml
 
+            // TODO: Refactor to separate file merge from token generation. Use Object.assign approach like for npm_build.
 
-  var travis_yml = yaml.safeLoad(fs.readFileSync(path.join(templates.path, 'integration/travis/.travis.yml'), 'utf8'));
+    var travis_yml = yaml.safeLoad(fs.readFileSync(path.join(templates.path, 'integration/travis/.travis.yml'), 'utf8'));
 
-  var git_name, git_email;
+    var git_name, git_email;
 
-  var promise_name = git.Config.openDefault()
-    .then(function(config) {
-      return config.getString("user.name");
-    });
+    var promise_name = git.Config.openDefault()
+      .then(function(config) {
+        return config.getString("user.name");
+      });
 
-  var promise_email = git.Config.openDefault()
-    .then(function(config) {
-      return config.getString("user.email");
-    });
+    var promise_email = git.Config.openDefault()
+      .then(function(config) {
+        return config.getString("user.email");
+      });
 
-  return Promise.all([ promise_name, promise_email ] )
-    .then(function(values) {
+    return Promise.all([ promise_name, promise_email ] )
+      .then(function(values) {
 
-      var token = "TOKEN";
+        var token = "TOKEN";
 
-      git_name = process.env.GIT_NAME || values[0]
-      git_email = process.env.GIT_EMAIL || values[1]    
+        git_name = process.env.GIT_NAME || values[0]
+        git_email = process.env.GIT_EMAIL || values[1]    
 
-      travis_yml.env.GH_USERNAME = process.env.GH_USERNAME || '';
-      travis_yml.env.CONFIG_OWNER = process.env.CONFIG_OWNER || '';
-      travis_yml.env.CONFIG_REPO = process.env.CONFIG_REPO || '';
+        travis_yml.env.global = [];
 
-      // Generate the travis encrypted variable to access Github.      
-      try {
-        if (!curSettings.offline) {
-          console.log("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
-          var stdout = cp.execSync("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
-          token = stdout.toString()
+        travis_yml.env.global.push('GH_USERNAME=' + process.env.GH_USERNAME);
+        travis_yml.env.global.push('CONFIG_OWNER=' + process.env.CONFIG_OWNER);
+        travis_yml.env.global.push('CONFIG_REPO=' + process.env.CONFIG_REPO);
+
+        // Generate the travis encrypted variable to access Github.      
+        try {
+          if (!curSettings.offline) {
+            //console.log("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
+            var stdout = cp.execSync("travis encrypt \'GIT_NAME=\"" + git_name + "\" GIT_EMAIL=\"" + git_email + "\" GH_TOKEN=\"" + gh_token + "\"\'")
+            token = stdout.toString()
+          }
+          travis_yml.env.global.push({ secure: token });
+        } catch (e) {
+          console.log('you need to have a working ruby environment and have installed the travis gem with `gem install travis`')
+          reject(e);
         }
-        travis_yml.env.global.secure = token;
-      } catch (e) {
-        console.log('you need to have a working ruby environment and have installed the travis gem with `gem install travis`')
-        reject(e);
-      }
 
-      // write the .travis.yml file.
-      try {
-        fs.writeFileSync('./.travis.yml', yaml.safeDump(travis_yml), 'utf8')
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
+        // write the .travis.yml file.
+        try {
+          fs.writeFileSync('./.travis.yml', yaml.safeDump(travis_yml), 'utf8')
+          resolve();
+        } catch (e) {
+          reject(e);
+        }
 
+      });
     });
 }
 
