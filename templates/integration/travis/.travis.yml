@@ -17,8 +17,10 @@ install:
   - rvm install $(sed 's/ruby-//g' .ruby-version)
   - bundle install
 
-after_script:
-  - test $TRAVIS_TEST_RESULT == "0" && test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && npm run deploy
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: npm run deploy
 
 env:
   global:
