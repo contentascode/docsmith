@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 
+var _ = require('lodash');
 var program = require('commander');
 var templates = require('./lib/templates');
 var settings = require('./lib/settings');
@@ -39,104 +40,156 @@ program
 
 var newSettings;
 
-switch(component) {
-  case "integration":
-    newSettings = install_integration(plugin, gh_token, curSettings)
-    break;
-  default:
-    console.log('%s is not a known component.', component);
-    process.exit();
+if (typeof component == 'undefined') {
+  // docsmith install will install or update necessary components from _content.yml config
+
+  console.log('Reading _content.yml and updating components.')
+  newSettings = curSettings;
+
+} else {
+  // docsmith install [component] [plugin] will return component configuration or install plugins.
+  // This only update settings, the actual installation is done via the update function.
+  switch(component) {
+    case "integration":
+      switch(plugin) {
+        case "travis":
+          newSettings.integration.travis = settings.DEFAULT_TRAVIS;
+        case "github-pages":
+          newSettings.integration.travis = settings.DEFAULT_GITHUB_PAGES;
+          break;
+        default:
+          if (curSettings.integration) {
+            console.log('Current integration plugin configuration is \n')
+            console.log(yaml.safeDump(curSettings.integration))
+            process.exit()
+          }
+          else {
+            console.log('No integration plugin currently installed. Please specify a plugin to install an integration component.')
+            console.log('For instance to enable the travis plugin use :')
+            console.log('$ docsmith install integration travis')
+            process.exit()
+          }
+        }
+
+      newSettings = install_integration(plugin, gh_token, curSettings)
+      break;
+    default:
+      console.log('%s is not a known component.', component);
+      process.exit();
+  }
 }
+
+update(newSettings);
 
 // update settings file.
 
-if (newSettings) {
-  settings.save(newSettings)
-  console.log('Saved new integration plugin');
-  //console.log(newSettings.integration)      
-} else {
-  // TODO Check that currently installed plugin configuration is sane.
-  console.log('No modifications. Current integration plugin is');
-  console.log(curSettings.integration)
+function update(set) {
+  // Lots of messy state for now... Wrapping all of this into a proper build system with dependencies
+  // such that updating a particular key in the _content.yml config would trigger installations and writing
+  // and updating of downstream configuration files...
+
+  if (set) {
+    Promise.all(
+      _(set)
+        .pickBy((item, key) => (key != "source") && (key != "implementation"))
+        .mapValues(update_component)
+    )
+    .then(function() {
+      settings.save(set)  
+      console.log('Saved configuration.');
+    })
+    .catch(function(err) {
+      console.log('A problem occured while updating components. See the error below.') 
+      console.log(err);
+      console.log('The new configuration has not been saved')
+      process.exit(1);
+    })
+    
+    //console.log(newSettings.integration)
+  } else {
+    // TODO Check that currently installed plugin configuration is sane.
+    console.log('No modifications. Current configuration is');
+    console.log(curSettings)
+  }
 }
 
-function install_integration(plugin, gh_token, curSet) {
-  var result;
+function update_component(comp,comp_key,coll) {
+  return new Promise(function(resolve, reject) {
+    console.log('Updating %s component', comp_key)
 
-  if (!curSet.integration) curSet.integration = {};
+    _(comp)
+    .mapValues(function(plugin, key) {
+        switch(comp_key) {
+          case "integration":
+            switch(key) {
+              case "travis":
+                console.log('Installing travis plugin')
+                install_plugin_travis();
+                resolve();
+                break;
+              case "github-pages":
+                console.log('TODO: this should install the github-pages plugin')
+                resolve();
+                break;
+              case "shared":
+                install_shared_plugins();
+                resolve();
+              default:
+                console.log('Unknown integration plugin. Exiting.')
+                reject();
+              }
 
-  switch(plugin) {
-    case "travis":
-      // TODO: Check if there are any needed updates. This should probably just be a call to a trusted build system
-      // For now just rerun configuration creation all the time.
-
-      // if (!(plugin in curSet.integration)) {
-      if (true) {
-        curSet.integration.travis = settings.DEFAULT_TRAVIS;
-
-        if (!program.gh_token) {
-          if (!process.env.GH_TOKEN && !program.test) {
-            console.log('Travis requires a Github Authentication Token in order to publish your website to Github Pages')
-            console.log('The GH_TOKEN environment variable needs to be set, or the --gh-token option needs to be used.')
-            process.exit(1);
-          } else {
-            gh_token = process.env.GH_TOKEN
-          }
-        } else {
-          gh_token = program.gh_token 
+//            newSettings = install_integration(plugin, gh_token, curSettings)
+            break;
+          default:
+            console.log('%s is not a known component. Exiting.', component);
+            reject();
         }
+      })
+    .value();
+  });
+}
 
-        // Install and check necessary files - .travis.yml 
-        //
-        // For now this is a blend of trying to generate files, do idempotent file check a la ansible
-        // and just copying template files.
-        //
-        // Later for moving between configurations, things might be different. Using npm build for now.
-        //
-        // Maybe this should be parameterised to be able to change build system and compose different components.
-        // One of the big factors is if there is a linear build pipe a la metalsmith, or if we have a tree which will
-        // necessitate more of a Make or equivalent approach.
 
-        create_travis_yml(gh_token)
-          .then(jekyll_config('integration/travis/_config.yml', '_config.yml'))
-          .then(npm_build('integration/travis/npm_build.yml', 'package.json'))
-          .then(function() {
-            console.log('You have just installed travis')          
-            console.log('You will need to:')      
-            console.log(' - Push this folder to your repo (soon with `docsmith save`)')      
-            console.log(' - Activate travis for your repository')      
-          }).catch(
-          // Log the rejection reason
-          function(reason) {
-            console.log('Problem installing the travis build component')
-            console.log(reason);
-            process.exit(1)
-          });
-
-        return curSet
-      } 
-
-      break;
-
-    case "github-pages":
-      if (!(plugin in curSet.integration)) {
-        curSet.integration.travis = settings.DEFAULT_GITHUB_PAGES;
-        return curSet
-      }
-      break;
-    default:
-      if (curSet.integration == {}) {
-        console.log('Current integration plugin configuration is')
-        console.log(curSet.integration)
-        process.exit()
-      }
-      else {
-        console.log('No integration plugin currently installed. Please specify a plugin to install a build component.')
-        console.log('For instance to enable the travis plugin use :')
-        console.log('$ docsmith install build travis')
-        process.exit()
-      }
+function install_plugin_travis() {
+  if (!program.gh_token) {
+    if (!process.env.GH_TOKEN && !program.test) {
+      console.log('Travis requires a Github Authentication Token in order to publish your website to Github Pages')
+      console.log('The GH_TOKEN environment variable needs to be set, or the --gh-token option needs to be used.')
+      process.exit(1);
+    } else {
+      gh_token = process.env.GH_TOKEN
+    }
+  } else {
+    gh_token = program.gh_token 
   }
+
+  // Install and check necessary files - .travis.yml 
+  //
+  // For now this is a blend of trying to generate files, do idempotent file check a la ansible
+  // and just copying template files.
+  //
+  // Later for moving between configurations, things might be different. Using npm build for now.
+  //
+  // Maybe this should be parameterised to be able to change build system and compose different components.
+  // One of the big factors is if there is a linear build pipe a la metalsmith, or if we have a tree which will
+  // necessitate more of a Make or equivalent approach.
+
+  create_travis_yml(gh_token)
+    .then(jekyll_config('integration/travis/_config.yml', '_config.yml'))
+    .then(npm_build('integration/travis/npm_build.yml', 'package.json'))
+    .then(function() {
+      console.log('You have just installed travis')          
+      console.log('You will need to:')      
+      console.log(' - Push this folder to your repo (soon with `docsmith save`)')      
+      console.log(' - Activate travis for your repository')
+    }).catch(
+    // Log the rejection reason
+    function(reason) {
+      console.log('Problem installing the travis build component')
+      console.log(reason);
+      process.exit(1)
+    });
 }
 
 function create_travis_yml(gh_token, resolve, reject) {

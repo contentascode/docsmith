@@ -112,12 +112,12 @@ integration:                  # Defaults to empty. Can be travis, or gitlab-ci
       - 'links'
   travis:          
     branch: 'versions/*'
-    build: 'rake'           # Which tool is orchestrating integration 
+    build: 'npm'           # Which tool is orchestrating integration 
     validate:
       - 'links'
   shared:                 # Shared component for isomorphic validations?
     validate:
-      * 'links'
+      - 'links'
 
 #
 # Publish
