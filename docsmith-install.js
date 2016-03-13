@@ -71,7 +71,7 @@ function install_integration(plugin, gh_token, curSet) {
           if (!process.env.GH_TOKEN) {
             console.log('Travis requires a Github Authentication Token in order to publish your website to Github Pages')
             console.log('The GH_TOKEN environment variable needs to be set, or the --gh-token option needs to be used.')
-            process.exit();
+            process.exit(1);
           } else {
             gh_token = process.env.GH_TOKEN
           }

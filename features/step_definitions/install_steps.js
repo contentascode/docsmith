@@ -43,7 +43,7 @@ module.exports = function () {
     });
   });
 
-  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 3000}, function (command, callback) {
+  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 5000}, function (command, callback) {
 
     command = command || '';
     var world = this;
@@ -61,6 +61,7 @@ module.exports = function () {
        };
        if (error) {
         console.log(stdout)
+        console.log(stderr)
         callback(error);
        }
        callback();
