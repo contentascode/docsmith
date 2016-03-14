@@ -10,7 +10,8 @@ cache:
   bundler: true
   directories:
     - node_modules
-    - /home/travis/.rvm
+    - $HOME/.rvm
+    - $HOME/.nvm
 
 install:
   # Install binary pandoc from Rstudio
