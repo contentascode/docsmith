@@ -53,7 +53,6 @@ module.exports = function () {
     if (!folderExists(cwd)) {
       fs.mkdirSync(cwd);
     }
-    console.log(process.env.PATH)
     execFile(executable, command, {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
        world.lastRun = {
          error:  error,
