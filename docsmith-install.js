@@ -243,11 +243,13 @@ function npm_build(src, dest) {
         var package = {};
         if (err) {
           if (err.code != 'ENOENT') {
-            reject(err);
+            reject(err.code);
           } 
+
         } else {
-          resolve([yaml, JSON.parse(data.toString())]);
+           package = JSON.parse(data.toString())
         }
+        resolve([yaml, package]);
       });
     });
   }
