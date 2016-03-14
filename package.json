@@ -10,7 +10,7 @@
     "docsmith-status": "docsmith-status.js"
   },
   "scripts": {
-    "test": "node_modules/cucumber/bin/cucumber.js features"
+    "test": "istanbul cover node_modules/cucumber/bin/cucumber.js -- features"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
     "tmp": "0.0.28"
   },
   "devDependencies": {
-    "cucumber": "^0.9.5"
+    "cucumber": "^0.9.5",
+    "istanbul": "^0.4.2"
   }
 }
