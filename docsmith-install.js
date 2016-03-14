@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 
+var _ = require('lodash');
 var program = require('commander');
 var templates = require('./lib/templates');
 var settings = require('./lib/settings');
@@ -190,6 +191,7 @@ function create_travis_yml(gh_token, resolve, reject) {
             token = stdout.toString()
           }
           travis_yml.env.global.push({ secure: token });
+          resolve();
         } catch (e) {
           console.log('You need to have a working ruby environment and have installed the travis gem with `gem install travis`')
           reject(e);
@@ -230,29 +232,43 @@ function lineinfile(dest, line) {
 }
 
 function npm_build(src, dest) {
+  var load_npm_build_yaml = new Promise(function(resolve, reject) {
+    resolve(yaml.safeLoad(fs.readFileSync(path.join(templates.path, src), 'utf8')));
+  })
 
-  return new Promise(function(resolve,reject) {
-    var npm_build = yaml.safeLoad(fs.readFileSync(path.join(templates.path, src), 'utf8'));
+  var read_package_json = function(yaml) {
+    return new Promise(function(resolve, reject) {
+      // what if there is no package.json?
+      fs.readFile(dest, function (err, data) {
+        var package = {};
+        if (err) {
+          if (err.code != 'ENOENT') {
+            reject(err);
+          } 
+        } else {
+          resolve([yaml, JSON.parse(data.toString())]);
+        }
+      });
+    });
+  }
 
-    // what if there is no package.json?
-    fs.readFile(dest, function (err, data) {
-      var package = {};
-      if (err) {
-        if (err.code != 'ENOENT') {
-          reject(err);
-          return;
-        } 
-      } else {
-        package = JSON.parse(data.toString());        
-      }
-
-      fs.writeFile(dest, JSON.stringify(Object.assign(package, npm_build), null, '  '), 'utf8', function (err) {
+  // Not using bluebird and spread yet...
+  var write_package_json = function(val) {
+      return new Promise(function(resolve, reject) {
+      fs.writeFile(dest, JSON.stringify(_.merge(val[1], val[0]), null, '  '), 'utf8', function (err) {
         if (err) reject(err);
         console.log(dest + " updated")
         resolve();
       })
-    })
-  })
+    });
+  }
+
+  return load_npm_build_yaml
+          .then(read_package_json)
+          .then(write_package_json)
+          .catch(function(err) {
+            console.log(err)
+          });
 }
 
 function jekyll_config(src, dest) {
@@ -273,7 +289,7 @@ function jekyll_config(src, dest) {
 
       jekyll_config.url = 'http://' + process.env.CONFIG_OWNER + '.github.io';
       jekyll_config.baseurl = '/' + process.env.CONFIG_REPO;
-      jekyll_config.github.repo = 'https://github.com/' + process.env.CONFIG_OWNER + '/' + process.env.CONFIG_REPO;
+      jekyll_config.github.repository_url = 'https://github.com/' + process.env.CONFIG_OWNER + '/' + process.env.CONFIG_REPO;
 
       fs.writeFile(dest, yaml.safeDump(Object.assign(_config, jekyll_config), null, '  '), 'utf8', function (err) {
         if (err) reject(err);
