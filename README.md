@@ -1,3 +1,7 @@
+[![Travis](https://img.shields.io/travis/contentascode/docsmith.svg)]() [![npm](https://img.shields.io/npm/dt/docsmith.svg)]() [![Code Climate](https://img.shields.io/codeclimate/github/contentascode/docsmith.svg)]() [![Code Climate](https://img.shields.io/codeclimate/coverage/github/contentascode/docsmith.svg)]() [![GitHub license](https://img.shields.io/github/license/contentascode/docsmith.svg)]()
+
+# This is in the very early stages of development!
+
 # docsmith (part of [content as code](http://iilab.github.io/contentascode))
 
 Content as Code aims to make it easy to start a website in just a few steps but also build complex content publishing pipelines. It develops best practices to managing content workflows inspired from how code is managed in large collaborative software engineering projects.
