@@ -1,4 +1,4 @@
-[![Travis](https://img.shields.io/travis/contentascode/docsmith.svg)]() [![npm](https://img.shields.io/npm/dt/docsmith.svg)]() [![Code Climate](https://img.shields.io/codeclimate/github/contentascode/docsmith.svg)]() [![Code Climate](https://img.shields.io/codeclimate/coverage/github/contentascode/docsmith.svg)]() [![GitHub license](https://img.shields.io/github/license/contentascode/docsmith.svg)]()
+[![Travis](https://img.shields.io/travis/contentascode/docsmith.svg)](https://travis-ci.org/contentascode/docsmith) [![npm](https://img.shields.io/npm/dt/docsmith.svg)](https://www.npmjs.com/package/docsmith) [![Code Climate](https://img.shields.io/codeclimate/github/contentascode/docsmith.svg)](https://codeclimate.com/github/contentascode/docsmith) [![Code Climate](https://img.shields.io/codeclimate/coverage/github/contentascode/docsmith.svg)](https://codeclimate.com/github/contentascode/docsmith/coverage) [![GitHub license](https://img.shields.io/github/license/contentascode/docsmith.svg)](https://github.com/contentascode/docsmith/blob/master/LICENSE)
 
 # This is in the very early stages of development!
 
