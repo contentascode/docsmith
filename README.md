@@ -77,8 +77,9 @@ implementation: 'docsmith'  # Which implementation of content as code?
 #
 
 sources:                    
-  - type: 'github'          # Defaults to github could also be gitlab or a local folder. Gollum for a wiki?
-    url: 'https://github.com/iilab/contentascode'
+  github:                   # Defaults to github could also be gitlab or a local folder. Gollum for a wiki?
+    owner: iilab
+    repo: contentascode
     transform: ''           # There could be some type of processing when query APIs or scraping...
     path: '.'               # Binds to authoring path.
 
