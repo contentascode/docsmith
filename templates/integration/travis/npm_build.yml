@@ -1,25 +1,24 @@
 scripts:
     # cleanup
-    clean: rimraf build
+    clean: rm -rf $CONFIG_REPO #rimraf $CONFIG_REPO 
 
     # build site with jekyll, by default to `_site' folder
-    build: jekyll build
+    build: jekyll build -d $CONFIG_REPO
 
-    test: npm run build && echo "Do some validations..."
+    test: npm run build && echo "Do some validations..." && npm run test-links
+    test-links: pm2 -s stop hs || true && pm2 -s delete hs || true && pm2 -f start `which hs` -- -p 8080 . && blc -r --input http://127.0.0.1:8080/$CONFIG_REPO | tee /dev/tty | grep -z '. 0 broken\.[[:space:]]\+Elapsed'
 
-    deploy: npm run deploy-clone && npm run deploy-prepare && npm run deploy-push
+    deploy: npm run deploy-push
 
-    # clone `master' branch of the repository using encrypted GH_TOKEN for authentification
-    # copy generated HTML site to `master' branch
-    # commit and push generated content to `master' branch
-    # since repository was cloned in write mode with token auth - we can push there
-    deploy-clone: echo https://github.com/$CONFIG_OWNER/$CONFIG_REPO.git && echo https://github.com/${CONFIG_OWNER}/${CONFIG_REPO}.git && git clone --branch 'gh-pages' https://github.com/${CONFIG_OWNER}/${CONFIG_REPO}.git build
-    deploy-prepare: >
-        cp -R _site/* build &&
-        cd build &&
+    deploy-push: >
+        cd $CONFIG_REPO &&
+        git init &&
         git config user.email "$GIT_EMAIL" &&
         git config user.name "$GIT_NAME" &&
+        git remote add upstream https://${GH_USERNAME}:${GH_TOKEN}@github.com/${CONFIG_OWNER}/${CONFIG_REPO}.git &&
+        git fetch upstream &&
+        git reset upstream/gh-pages &&
+        touch .nojekyll &&
         git add -A . &&
-        git commit -a -m "Travis build $TRAVIS_BUILD_NUMBER."
-    deploy-push: >
-        git push --quiet 'https://$GH_USERNAME:$GH_TOKEN@github.com/$CONFIG_OWNER/$CONFIG_REPO.git' gh-pages 
+        git commit -a -m "Travis build $TRAVIS_BUILD_NUMBER" &&
+        git push --quiet upstream HEAD:gh-pages
