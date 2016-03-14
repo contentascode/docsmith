@@ -38,6 +38,8 @@ Feature: docsmith install build
     Given I clone the contentascode "fixture/build-github-pages" branch
     When I run docsmith "install --test integration travis"
     Then I should have a "Gemfile" file with "github-pages"
+    # And I should have a "Gemfile" file without "~> 15" # github-pages shoudn't be pinned
+    # And I should have a "Gemfile" file without "rake"
     And I should have a ".travis.yml" file
     And I should have a "package.json" file
     # TODO Set environment variables and test _config.yml
