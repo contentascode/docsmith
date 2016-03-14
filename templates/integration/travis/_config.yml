@@ -7,15 +7,15 @@ markdown:         kramdown
 permalink:        pretty
 
 # Setup
-title:            Content as Code
-tagline:          'Developing workflows and technology to improve content re-use and maintainability.'
-description:      'Developing workflows and technology to improve content re-use and maintainability.'
-url:              http://USER.github.io
-baseurl:          /REPO
+# title:            Content as Code
+# tagline:          'Developing workflows and technology to improve content re-use and maintainability.'
+# description:      'Developing workflows and technology to improve content re-use and maintainability.'
+# url:              http://USER.github.io
+# baseurl:          /REPO
 
-author:
-  name:           'Your Name'
-  url:            https://twitter.com/yourtwitter
+# author:
+#  name:           'Your Name'
+#  url:            https://twitter.com/yourtwitter
 
 defaults:
   -
@@ -36,7 +36,8 @@ redcarpet:
   extensions: ["tables", "autolink", "strikethrough", "space_after_headers", "with_toc_data", "fenced_code_blocks", "lax_spacing", "smart"]
 
 github:
-  repo:           https://github.com/USER/REPO
+  current_branch: 'master'
+  repository_url: https://github.com/USER/REPO
 
 
 gems:
@@ -54,9 +55,9 @@ gems:
 # Branch defaults to "source" for OWNER.github.io
 # or "master" otherwise
 
-username: USER
-owner: ORG
-repo: REPO
+# username: USER
+# owner: ORG
+# repo: REPO
 
 # branch: source
 
