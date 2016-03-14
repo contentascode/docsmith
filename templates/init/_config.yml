@@ -31,7 +31,8 @@ redcarpet:
     - lax_spacing
     - smart
 github:
-  repo: 'https://github.com/contentascode/docsmith-init'
+  current_branch: master
+  repository_url: 'https://github.com/contentascode/docsmith-init'
 gems:
   - jekyll-sitemap
   - jekyll-gist
