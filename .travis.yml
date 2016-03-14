@@ -18,6 +18,7 @@ node_js:
 install:
   - npm -g install npm@latest-2
   - npm install
+  - npm install -g codeclimate-test-reporter
   - gem install travis
 
 after_script:
