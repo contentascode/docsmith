@@ -1,10 +1,16 @@
 language: node_js
-cache: bundler
 sudo: false
-
+node_js:
+  - "4.2"
 branches:
   except:
     - gh-pages
+
+cache: 
+  bundler: true
+  directories:
+    - node_modules
+    - /home/travis/.rvm
 
 install:
   # Install binary pandoc from Rstudio
@@ -18,6 +24,7 @@ install:
   # - pandoc --version
 
   # Install Jekyll and dependencies
+  - npm i pm2 http-server contentascode/broken-link-checker -g 
   - rvm install $(sed 's/ruby-//g' .ruby-version)
   - bundle install
 
@@ -29,7 +36,7 @@ deploy:
 env:
   global:
     secure: {{ TRAVIS_SECURE_TOKEN }}
-
+    
 # Generate your secure token with the travis gem:
 # get Github token from your Travis CI profile page
 # gem install travis
