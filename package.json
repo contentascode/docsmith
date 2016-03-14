@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "cucumber": "^0.9.5",
-    "istanbul": "^0.4.2"
+    "istanbul": "^0.4.2",
+    "package-json-validator": "^0.6.1"
   }
 }

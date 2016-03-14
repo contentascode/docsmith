@@ -5,12 +5,12 @@ Feature: docsmith dependency checks
 
   Scenario: Without ruby
     Given An environment without ruby.
-    When I run docsmith "install integration travis"
+    When I run "docsmith install integration travis"
     Then I should see "Ruby is not available."
 
   Scenario: Without travis command
     Given An environment without the travis command.
-    When I run docsmith "install integration travis"
+    When I run "docsmith install integration travis"
     Then I should see "The travis command is not available."
 
  

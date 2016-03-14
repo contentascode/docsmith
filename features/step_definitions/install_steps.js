@@ -6,7 +6,7 @@ module.exports = function () {
   var fs = require('fs');
   var assert = require('assert')
 
-  var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
+//  var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
 //  var executablePath = '/usr/local/bin/node';
 
   this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 10000}, function (branch, callback) {
@@ -43,9 +43,10 @@ module.exports = function () {
     });
   });
 
-  this.Given(/^I run docsmith "([^"]*)"$/, {timeout: 5000}, function (command, callback) {
+  this.Given(/^I run "([^"]*)"$/, {timeout: 5000}, function (command, callback) {
 
-    command = command || '';
+    var executable = command.split(' ')[0];
+    command = command.split(' ').slice(1);
     var world = this;
     var cwd = path.join(world.tmpDir, "proj");
 
@@ -53,7 +54,7 @@ module.exports = function () {
       fs.mkdirSync(cwd);
     }
 
-    execFile(executablePath, command.split(' '), {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
+    execFile(executable, command, {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
        world.lastRun = {
          error:  error,
          stdout: stdout, //colors.strip(stdout),
@@ -64,6 +65,34 @@ module.exports = function () {
         console.log(stderr)
         callback(error);
        }
+       callback();
+     });
+
+  });
+
+  this.Then(/^I run "([^"]*)" I should( not)? see "([^"]*)"$/, {timeout: 5000}, function (command, negate, output, callback) {
+
+    var executable = command.split(' ')[0];
+    command = command.split(' ').slice(1);
+    var world = this;
+    var cwd = path.join(world.tmpDir, "proj");
+
+    if (!folderExists(cwd)) {
+      fs.mkdirSync(cwd);
+    }
+
+    execFile(executable, command, {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
+       world.lastRun = {
+         error:  error,
+         stdout: stdout, //colors.strip(stdout),
+         stderr: stderr
+       };
+       if (error) {
+        console.log(stdout)
+        console.log(stderr)
+        callback(error);
+       }
+       assert.equal(stdout.indexOf(output) > -1, !negate);
        callback();
      });
 

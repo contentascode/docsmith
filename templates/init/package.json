@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/contentascode/docsmith-init.git"
   },
-  "author": "Jun Matsushita (iilab.org)",
+  "author": "Jun Matsushita",
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/contentascode/docsmith-init/issues"

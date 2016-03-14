@@ -12,6 +12,8 @@ var components = require('./lib/components');
 var yaml = require('js-yaml');
 var fs = require('fs-extra');
 var path = require('path');
+var exec = require('child_process').execFile;
+
 const cp = require('child_process');
 const git = require('nodegit');
 
@@ -237,21 +239,68 @@ function npm_build(src, dest) {
   })
 
   var read_package_json = function(yaml) {
-    return new Promise(function(resolve, reject) {
-      // what if there is no package.json?
-      fs.readFile(dest, function (err, data) {
-        var package = {};
-        if (err) {
-          if (err.code != 'ENOENT') {
-            reject(err.code);
-          } 
 
-        } else {
-           package = JSON.parse(data.toString())
-        }
-        resolve([yaml, package]);
-      });
-    });
+    var check_package_json = new Promise(function(resolve, reject) {
+        fs.stat(dest, function(err, stats) {
+          if (err) {
+            resolve(false)
+          } else {
+            if (stats.isFile()) {
+              resolve(true);
+            } else {
+              reject(dest + ' is not a file');
+            }
+          } 
+        });
+      })
+
+    return new Promise(function(resolve, reject) {
+
+      function promiseFromChildProcess(child) {
+          return new Promise(function (resolve, reject) {
+              child.addListener("error", reject);
+              child.addListener("exit", resolve);
+          });
+      }
+
+      var child = exec('npm', ['init','-f'], { env: process.env });
+
+      // promiseFromChildProcess(child).then(function (result) {
+      //     console.log('promise complete: ' + result);
+      // }, function (err) {
+      //     console.log('promise rejected: ' + err);
+      // });
+
+      // child.stdout.on('data', function (data) {
+      //     console.log('stdout: ' + data);
+      // });
+      // child.stderr.on('data', function (data) {
+      //     console.log('stderr: ' + data);
+      // });
+      // child.on('close', function (code) {
+      //     console.log('closing code: ' + code);
+      // });
+
+      return check_package_json
+        .then(
+          (exists) => {
+            if (!exists) {
+              // console.log(dest + ': does not exist!')
+              return promiseFromChildProcess(child);
+            }
+          })
+        .then(
+          (exists) => { 
+            fs.readFile(dest, function (err, data) {
+              if (err) reject(err)
+              console.log(dest + ': exists!')
+              var package = JSON.parse(data.toString());
+              console.log(package)
+              package.author = package.author || "Unknown";
+              resolve([ yaml, package]);
+            });
+          })
+      })
   }
 
   // Not using bluebird and spread yet...
@@ -268,9 +317,7 @@ function npm_build(src, dest) {
   return load_npm_build_yaml
           .then(read_package_json)
           .then(write_package_json)
-          .catch(function(err) {
-            console.log(err)
-          });
+
 }
 
 function jekyll_config(src, dest) {
@@ -293,7 +340,7 @@ function jekyll_config(src, dest) {
       jekyll_config.baseurl = '/' + process.env.CONFIG_REPO;
       jekyll_config.github.repository_url = 'https://github.com/' + process.env.CONFIG_OWNER + '/' + process.env.CONFIG_REPO;
 
-      fs.writeFile(dest, yaml.safeDump(Object.assign(_config, jekyll_config), null, '  '), 'utf8', function (err) {
+      fs.writeFile(dest, yaml.safeDump(_.merge(_config, jekyll_config), null, '  '), 'utf8', function (err) {
         if (err) reject(err);
         console.log(dest + " updated")
         resolve();
