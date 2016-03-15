@@ -295,7 +295,6 @@ function npm_build(src, dest) {
               if (err) reject(err)
               console.log(dest + ': exists!')
               var package = JSON.parse(data.toString());
-              console.log(package)
               package.author = package.author || "Unknown";
               resolve([ yaml, package]);
             });
