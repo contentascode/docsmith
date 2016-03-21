@@ -3,13 +3,6 @@ Feature: docsmith install build
   I want to change the build component
   So that I use more customised workflows and advanced features
 
-  Scenario: Starting from scratch
-    When I run "docsmith init"
-    Then I should have a ".travis.yml" file
-    And I should have a "Gemfile" file with "github-pages"
-    And I should have a "Gemfile" file without "rake"
-    And I should not have a "Rakefile" file
-
   Scenario: Starting from scratch and running docsmith install integration
     When I run "docsmith init"
     And I run "docsmith install --test integration"
