@@ -8,6 +8,41 @@ Content as Code aims to make it easy to start a website in just a few steps but 
 
 **docsmith** implements the [Content as Code](https://contentascode.io) framework using metal*smith*, pan*doc* and *doc*ker microservice deployment.
 
+<!-- MarkdownTOC -->
+
+- [Getting Started][getting-started]
+  - [Use your own domain name][use-your-own-domain-name]
+  - [Collaboration][collaboration]
+  - [Checking Links][checking-links]
+  - [Choose a theme][choose-a-theme]
+  - [What next?][what-next]
+  - [Modularity][modularity]
+  - [Docsmith CLI tool][docsmith-cli-tool]
+    - [init][init]
+    - [install][install]
+    - [build][build]
+    - [serve][serve]
+    - [publish][publish]
+    - [load / update / save][load--update--save]
+  - [Configuration][configuration]
+  - [build][build-1]
+- [API][api]
+  - [source][source]
+    - [github][github]
+  - [build][build-2]
+  - [validate][validate]
+  - [editor][editor]
+  - [generate][generate]
+    - [jekyll][jekyll]
+    - [metalsmith][metalsmith]
+  - [publish][publish-1]
+    - [github-pages][github-pages]
+- [Dependencies][dependencies]
+- [Dev dependencies][dev-dependencies]
+
+<!-- /MarkdownTOC -->
+
+
 ## Getting Started
 
 The simplest way to get started is to fork one of our sample repos on github:
@@ -46,25 +81,74 @@ We're planning to implement many more features with a content as code approach f
 
 If you want to go deeper into **docsmith** and content as code, you can also help us develop the command line tool we have started designing below which will help more advanced users with more sophisticated content management needs. It is based on a modular approach
 
+## Modularity
+
+This table aims to represent which components affect which stages of the content as code framework.
+ - Key          : means that this component is a key component for this stage.
+ - Change       : means that this component modifies or applies to this stage.
+ - + component : means that this component works better with the specified component.
+ - = component : means that this component only works with the specified component.
+ - - component : means that this component doesn't work with the specified component.
+
+| Component \ Stage |  Source  | Author |  Integrate  | Generate | Translate |  Publish   |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| github            | Key      |        | + travis    |          |           | + gh-pages |
+| gitlab            | Key      |        | + gitlab-ci |          |           |            |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| prose             | + github | Key    |             | + jekyll |           |            |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| travis            |          |        | Key         |          |           |            |
+| gitlab-ci         | - github |        | Key         |          |           |            |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| validate          |          |        | Change      |          |           |            |
+| validate links    |          |        | Change      |          |           |            |
+| validate style    |          |        | Change      |          |           |            |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| jekyll            |          |        |             | Key      |           |            |
+| metalsmith        |          |        |             | Key      |           |            |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| transifex         |          |        |             |          | Key       |            |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+| gh-pages          | + github |        |             |          |           | Key        |
+|-------------------|----------|--------|-------------|----------|-----------|------------|
+
 ## Docsmith CLI tool
 
- - ```npm install -g docsmith``` : installs content CLI tool.
+ - ```npm install -g docsmith``` : installs content CLI tool and the `content` executable.
 
- - ```docsmith init```: Or ```docsmith init <template>``` like ```docsmith init blog```, ```docsmith init doc``` or ```docsmith init wiki```.
- - ```docsmith install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
- - ```docsmith install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
- - ```docsmith install validator``` : Install default plugin suite in validator (linkchecker) or the one specified in the `_content.yml` file.
- - ```docsmith install validator styleguide```: Install specific plugin (and updates the yml file)
+### init
 
- - ```docsmith build```: Build the content locally.
- - ```docsmith serve```: Serve the content locally. (Should probably open a console and allow to `pull`,`update` or `pull` within it)
- - ```docsmith publish```: Publishes the content (and configure and/or deploy needed microservices).
+ - ```content init```: Or ```content init <template>``` like ```content init blog```, ```content init doc``` or ```content init wiki```.
 
- - ```docsmith load/pull``` : Get local content updates 
- - ```docsmith load/pull <version>```: Get specific version.
- - ```docsmith update```: Get remote content dependency updates.
- - ```docsmith save/push``` : Push content source updates and advertise changes.
- - ```docsmith save/push <version>``` : Push content source updates and advertise changes.
+### install
+
+ - ```content install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
+
+ - ```content install validate``` : Install default plugin suite in the integration stage (linkchecker) or the one specified in the `_content.yml` file.
+
+ - ```content install validate style```: Install specific plugin (and updates the yml file)
+
+### build
+
+ - ```content build```: Build the content locally.
+
+### serve
+
+ - ```content serve```: Serve the content locally. (Should probably open a console and allow to `pull`,`update` or `pull` within it)
+
+### publish
+
+ - ```content publish```: Publishes the content (and configure and/or deploy needed microservices).
+
+### load / update / save
+
+ - ```content load/pull``` : Get local content updates 
+ - ```content load/pull <version>```: Get specific version.
+ - ```content update```: Get remote content dependency updates.
+ - ```content save/push``` : Push content source updates and advertise changes.
+ - ```content save/push <version>``` : Push content source updates and advertise changes.
+
+## Configuration
 
 Example ```_content.yml```:
 
@@ -73,14 +157,14 @@ Example ```_content.yml```:
 implementation: 'docsmith'  # Which implementation of content as code?
 
 #
-# Sources
+# Source
 # 
 #   Source repositories which contain the sources for the current project. 
 #   Note: These are not upstream dependencies which will be managed with metadata inside 
 #   and alongside the source files.
 #
 
-sources:                    
+source:                    
   github:                   # Defaults to github could also be gitlab or a local folder. Gollum for a wiki?
     owner: iilab
     repo: contentascode
@@ -95,13 +179,21 @@ sources:
 #   See the lib/components.js file for a first attempt at modeling these capabilities.
 #
 
-authoring:                  # What is the content authoring environment? Could be prose, realms,...
+author:                  # What is the content authoring environment? Could be prose, realms,...
   - type: 'local'           # Maybe editor plugins could be proposed for desktop based edition.
   - type: 'github'
   - type: 'prose'           
 
-translation:
+translate:
   - type: 'transifex'
+
+#
+# Generate
+#   The static site generator used.
+
+generate:
+  metalsmith:
+    config: metalsmith.json
 
 #
 # Integrate
@@ -110,14 +202,14 @@ translation:
 #   including presenting staging or testing environments/artifacts of various versions that are being worked on.
 #   Note: Maybe this should be included in the publish component.
 
-integration:                  # Defaults to empty. Can be travis, or gitlab-ci
+integrate:                  # Defaults to empty. Can be travis, or gitlab-ci
   local:
-    build: ''               # Which tool is orchestrating local integration tests.
+    build: 'npm'               # Which tool is orchestrating local integration tests.
     validate:               # Defaults to empty. List of validation scripts, for instance links,...
       - 'links'
   travis:          
     branch: 'versions/*'
-    build: 'rake'           # Which tool is orchestrating integration 
+    build: 'npm'           # Which tool is orchestrating integration 
     validate:
       - 'links'
   shared:                 # Shared component for isomorphic validations?
@@ -130,7 +222,7 @@ integration:                  # Defaults to empty. Can be travis, or gitlab-ci
 #   These are the various channels where published versions will be available from.
 #
 
-publishing:
+publish:
   - type: 'github-pages'
     url: 'http://iilab.github.io/contentascode'
     build: 'jekyll-github-pages' # Probably useless as its part of capabilities.
@@ -140,32 +232,32 @@ publishing:
     url: 'https://www.example.org'
 
 #
-# Services
+# Service
 #   
 #   These are various additional services that are linked to various features that are useful
 #   for 
 #
 
-services:
+service:
   discuss: 'github'  # Discussion threads, comments, wiki style discuss page...
   review: 'github'          # Line based review like github code comments, could be gitlab...
   stats: 'piwik'
 
 ```
 
- - ```docsmith modules``` : display list of available modules.
- - ```docsmith source``` : display current source settings.
- - ```docsmith source gitlab``` : changes repo to gitlab.
- - ```docsmith build travis-ci``` : changes build system to travis ci.
- - ```docsmith validate links``` : Adds link validator module.
+ - ```content components``` : display list of available modules.
+ - ```content source``` : display current source settings.
+ - ```content source gitlab``` : changes repo to gitlab.
+ - ```content build travis-ci``` : changes build system to travis ci.
+ - ```content validate links``` : Adds link validator module.
 
 ## build
 
-In the simplest case the build component uses github-pages which depend on an external build system. It can also depend on other external build systems like travis, or use a more custom build with a custom static website generator, or in more complex cases it can mean assembling various components to for instance generate various outputs or orchestrate deployment of microservices. In that sense the build system could also include configuration management with ansible or docker compose.
+In the simplest case the build stage uses the github-pages component which depend on an external build system. It can also depend on other external build systems like travis, or use a more custom build with a custom static website generator, or in more complex cases it can mean assembling various components to for instance generate various outputs or orchestrate deployment of microservices. In that sense the build system could also include configuration management with ansible or docker compose.
 
-Depending on the chosen build system, different targets will be available for the `publish` command to enable `docsmith publish android` or `docsmith publish pdf`.
+Depending on the chosen build system, different targets will be available for the `publish` command to enable `content publish android` or `content publish pdf`.
 
-# Components API
+# API
 
 Each component of the docsmith build pipeline passes to the next component a context (as this is managed via metalsmith) which is the current state of the file structure:
  - metadata 
@@ -173,18 +265,14 @@ Each component of the docsmith build pipeline passes to the next component a con
 
 ## source 
 
-### API
-
  - pull: get the latest (or default) version from the content repo.
  - update: pulls dependencies (through git submodules or a package management approach or another yet to be developed approach)
  - version: get a specific version (github version tag or branch or ). From docsmith's perspective all versions are really branches that can be worked on a later merged onto other versions aiming to pick the best merge strategy based on heuristics.
  - push: pushes local changes to content repo.
 
-### Implementation Notes
-
 Configures the build pipeline (for now metalsmith) with the proper and desired source content version. This should allow to wrap dependency management (include with git submodules if wanted).
 
-### repo-github
+### github
 
  * This module connects docsmith to a github repository as a content source.
  * Configuration options
@@ -194,18 +282,11 @@ Configures the build pipeline (for now metalsmith) with the proper and desired s
 
 ## build
 
-### API
-
-
 ## validate
-
-### API
 
  - validate: runs validations on the current context and exits with a descriptive validation error
 
 ## editor
-
-### API
 
  - url: ? This could link to a prose instance, it could possibly be deployable as an unhosted app or a desktop app.
  - callbacks? Maybe some glue configuration will be necessary to link things like
@@ -216,25 +297,25 @@ Configures the build pipeline (for now metalsmith) with the proper and desired s
 
 ## generate
 
-### API
-
 Methods:
  - generate
  - watch
 
-### generate-github-pages
+### jekyll
 
- * Configuration options
-     - `source`
-       +
-
-### generate-jekyll
-### generate-metalsmith
+### metalsmith
 
 Configuration:
  - templating engine
  - templates
 
+## publish
+
+### github-pages
+
+ * Configuration options
+     - `source`
+       +
 
 # Dependencies
 
