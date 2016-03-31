@@ -10,35 +10,35 @@ Content as Code aims to make it easy to start a website in just a few steps but 
 
 <!-- MarkdownTOC -->
 
-- [Getting Started][getting-started]
-  - [Use your own domain name][use-your-own-domain-name]
-  - [Collaboration][collaboration]
-  - [Checking Links][checking-links]
-  - [Choose a theme][choose-a-theme]
-  - [What next?][what-next]
-  - [Modularity][modularity]
-  - [Docsmith CLI tool][docsmith-cli-tool]
-    - [init][init]
-    - [install][install]
-    - [build][build]
-    - [serve][serve]
-    - [publish][publish]
-    - [load / update / save][load--update--save]
-  - [Configuration][configuration]
-  - [build][build-1]
-- [API][api]
-  - [source][source]
-    - [github][github]
-  - [build][build-2]
-  - [validate][validate]
-  - [editor][editor]
-  - [generate][generate]
-    - [jekyll][jekyll]
-    - [metalsmith][metalsmith]
-  - [publish][publish-1]
-    - [github-pages][github-pages]
-- [Dependencies][dependencies]
-- [Dev dependencies][dev-dependencies]
+- [Getting Started](#getting-started)
+  - [Use your own domain name](#use-your-own-domain-name)
+  - [Collaboration](#collaboration)
+  - [Checking Links](#checking-links)
+  - [Choose a theme](#choose-a-theme)
+  - [What next?](#what-next)
+  - [Modularity](#modularity)
+  - [Docsmith CLI tool](#docsmith-cli-tool)
+    - [init](#init)
+    - [install](#install)
+    - [build](#build)
+    - [serve](#serve)
+    - [publish](#publish)
+    - [load / update / save](#load--update--save)
+  - [Configuration](#configuration)
+  - [build](#build-1)
+- [API](#api)
+  - [source](#source)
+    - [github](#github)
+  - [build](#build-2)
+  - [validate](#validate)
+  - [editor](#editor)
+  - [generate](#generate)
+    - [jekyll](#jekyll)
+    - [metalsmith](#metalsmith)
+  - [publish](#publish-1)
+    - [github-pages](#github-pages)
+- [Dependencies](#dependencies)
+- [Dev dependencies](#dev-dependencies)
 
 <!-- /MarkdownTOC -->
 
