@@ -1,0 +1,8 @@
+source: .
+implementation: docsmith
+integrate:
+  travis:
+    branch: 'versions/*'
+    build: npm
+    validate:
+      - links

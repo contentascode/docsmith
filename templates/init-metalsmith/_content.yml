@@ -1,0 +1,11 @@
+source: .
+implementation: docsmith
+generate:
+  metalsmith:
+    config: metalsmith.json
+integrate:
+  travis:
+    branch: 'versions/*'
+    build: npm
+    validate:
+      - links
