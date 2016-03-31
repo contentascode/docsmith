@@ -7,7 +7,8 @@
 var program = require('commander');
 var templates = require('./lib/templates');
 
-var template;
+// default is metalsmith
+var template = "metalsmith";
 
 program
   .arguments('[template]')
@@ -16,8 +17,4 @@ program
   })
   .parse(process.argv);
 
-if (template) {
-  console.log('something with a template')
-} else {
-  templates.init();
-}
+templates.init(template);

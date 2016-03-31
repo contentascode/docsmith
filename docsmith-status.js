@@ -6,6 +6,7 @@
 
 var program = require('commander');
 var curSettings = require('./lib/settings').settings;
+var yaml = require('js-yaml');
 
 var component, plugin;
 
@@ -17,6 +18,6 @@ program
   })
   .parse(process.argv);
 
-console.log('status %s %s', component, plugin);
-console.log('settings:');
-console.log(curSettings);
+console.log('Current Content as Code settings:');
+console.log('');
+console.log(yaml.safeDump(curSettings));
