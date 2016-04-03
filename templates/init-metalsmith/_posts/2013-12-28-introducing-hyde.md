@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: post.html
 title: Introducing Hyde
 ---
 

@@ -1,0 +1,88 @@
+{
+  "source": ".",
+  "destination": "./_site/docsmith-init",
+  "metadata": {},
+  "plugins": {
+      "metalsmith-static": {
+        "src": "public",
+        "dest": "public"
+      },
+      "metalsmith-ignore": [
+      ".git",
+      ".gitignore",
+      ".travis.yml",
+      "_content.yml",
+      "package.json",
+      "metalsmith.json",
+      "metalsmith.tmp.json",
+      "**/.*",
+      "**/.*/**",
+      "node_modules/**",
+      "node_modules/**/.*",
+      "node_modules/**/.*.rej",
+      "node_modules/**/.*/**",
+      "_content.yml",
+      "_site/**",
+      "_includes/**",
+      "_layouts/**",
+      "public/**/*.*",
+      "LICENSE",
+      "README.md"
+    ],
+    "metalsmith-drafts": {},
+    "metalsmith-paths": {
+      "property": "paths",
+      "directoryIndex": "index.html"
+    },
+    "metalsmith-metadata": {
+      "site": "_config.yml"
+    },
+    "metalsmith-collections": {
+      "pages": {
+        "pattern": "!_posts/**/*!(.xml|.png|.css|.ico)"
+      },
+      "posts": {
+        "pattern": "_posts/*.md",
+        "sortBy": "date",
+        "reverse": true
+      }
+    },
+    "metalsmith-in-place": {
+      "engine": "liquid",
+      "pattern": "**/*.?(md|html)"
+    },
+    "metalsmith-pandoc": {
+      "pattern": "**/*.md",
+      "from": "markdown_github+definition_lists+markdown_in_html_blocks"
+    },
+    "metalsmith-debug": {},
+    "../metalsmith-metacopy": {
+      "file": [ 
+        { "src": "paths.href", "dest": "url" },
+        { "src": "paths.name", "dest": "basename" },
+        { "src": "contents", "dest": "content" }
+      ],
+      "metadata": [
+        { "src": "collections", "dest": "site" }
+      ]
+    },
+    "../metalsmith-permalinks": {
+      "linksets": [{
+          "match": { "collection": "pages" },
+          "pattern": ":path"
+      },{
+          "match": { "collection": "posts" },
+          "pattern": ":basename/:title"
+      }]
+    },
+    "metalsmith-layouts": {
+      "engine": "liquid",
+      "directory": "_layouts",
+      "pattern": "**/*.html",
+      "rename": true,
+      "default": "default.html",
+      "includeDir": "_includes",
+      "ext": ".html"
+    }
+  }
+}
