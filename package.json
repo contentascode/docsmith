@@ -7,7 +7,8 @@
     "content": "docsmith.js",
     "content-init": "docsmith-init.js",
     "content-install": "docsmith-install.js",
-    "content-status": "docsmith-status.js"
+    "content-status": "docsmith-status.js",
+    "content-build": "docsmith-build.js"
   },
   "scripts": {
     "test": "istanbul cover node_modules/cucumber/bin/cucumber.js -- features"
@@ -32,6 +33,7 @@
     "fs-extra": "^0.26.5",
     "js-yaml": "^3.5.3",
     "lodash": "^4.6.1",
+    "metalsmith": "^2.1.0",
     "nodegit": "^0.11.8",
     "npmi": "^1.0.1",
     "tmp": "0.0.28"

@@ -14,5 +14,6 @@ program
 program
   .command('install [component] [plugin]', 'install one or more components with their default settings or a specific plugin')
   .command('init [template] [directory]', 'initialise the current folder or the directory with the default or specified template')
+  .command('build', 'build the content locally')
   .command('status', 'displays current configuration')
   .parse(process.argv);
