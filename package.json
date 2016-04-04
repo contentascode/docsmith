@@ -11,7 +11,7 @@
     "content-build": "docsmith-build.js"
   },
   "scripts": {
-    "test": "istanbul cover node_modules/cucumber/bin/cucumber.js -- features"
+    "test": "node_modules/cucumber/bin/cucumber.js -- features"
   },
   "repository": {
     "type": "git",
