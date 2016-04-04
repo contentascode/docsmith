@@ -31,7 +31,7 @@ install:
   - npm -g install npm@latest-2
   - npm install -g
   - npm install -g codeclimate-test-reporter package-json-validator
-  - rvm use 2.2.1
+  - rvm install 2.2.1
   - gem install travis 
   - gem install github-pages
 
