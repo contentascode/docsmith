@@ -30,6 +30,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - libstdc++-4.9-dev
+      - pandoc
   code_climate:
       repo_token: b24eee69b925656c35879dd636cac1c382d5f07de0bd1c11b2197f9ec71c1d89
 
