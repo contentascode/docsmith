@@ -9,7 +9,6 @@ var settings = require('./lib/settings').settings;
 var spawn = require('child_process').spawn;
 var path = require('path');
 var fs = require('fs');
-var config = require(path.join(process.cwd(),'metalsmith.json'));
 
 var component;
 
@@ -19,13 +18,20 @@ program
   .option('--watch', 'Serves and watches')
   .option('--reload', 'Live reload')
   .option('--validate', 'Validate links')
-  .arguments('[component]')
+  .option('--config <config>', 'Specify configuration file')
+  .arguments('[component] [options]')
   .action(function(component) {
     component = component;
   })
   .parse(process.argv);
 
+if (!settings.generate) {
+  console.log('You do not have a static site generator installed.')
+}
+
 if (settings.generate.metalsmith) {
+  var config = require(path.join(process.cwd(),'metalsmith.json'));
+
 //  var metalsmith = spawn('metalsmith', [''], { env: process.env, stdio: "inherit"});
 
   // provide a formatting function for use in templates
@@ -46,7 +52,7 @@ if (settings.generate.metalsmith) {
       }
     };
   }
-  console.log(config.plugins['metalsmith-serve'])
+
   if (program.watch) {
     config.plugins['metalsmith-watch'] = { 
       "paths": {
@@ -76,5 +82,8 @@ if (settings.generate.metalsmith) {
     require('metalsmith/bin/metalsmith');
 
   })
+} else if (settings.generate.jekyll) {
+  var config = program.config ? ['--config', program.config] : []
+  spawn('jekyll', ['build'].concat(config), { env: process.env, stdio: "inherit"});
 }
 

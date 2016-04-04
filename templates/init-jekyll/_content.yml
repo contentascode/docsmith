@@ -1,5 +1,8 @@
 source: .
-implementation: docsmith
+implementation: docsmit
+generate:
+  jekyll:
+    config: _config.yml
 integrate:
   travis:
     branch: 'versions/*'

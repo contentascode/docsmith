@@ -6,9 +6,6 @@ module.exports = function () {
   var fs = require('fs');
   var assert = require('assert')
 
-//  var executablePath = path.join(__dirname, '..', '..', 'docsmith.js');
-//  var executablePath = '/usr/local/bin/node';
-
   this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 10000}, function (branch, callback) {
     var world = this;
 
@@ -43,7 +40,7 @@ module.exports = function () {
     });
   });
 
-  this.Given(/^I run "([^"]*)"$/, {timeout: 5000}, function (command, callback) {
+  this.Given(/^I run "([^"]*)"$/, {timeout: 100000}, function (command, callback) {
 
     var executable = command.split(' ')[0];
     command = command.split(' ').slice(1);
@@ -99,6 +96,10 @@ module.exports = function () {
 
   this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
     assert.equal(fileExists(path.join(this.tmpDir, "proj", file)), !negate);
+  });
+
+  this.Then(/^I should( not)? have a "([^"]*)" folder$/, function (negate, file) {
+    assert.equal(folderExists(path.join(this.tmpDir, "proj", file)), !negate);
   });
 
   this.Then(/^I should have a "([^"]*)" file with(out)? "([^"]*)"$/, function (file, negate, text, callback) {

@@ -127,9 +127,9 @@ switch(component) {
     newSettings = install_integration(plugin, gh_token, curSettings)
     break;
 
-  default:
-    console.log('%s is not a known component.', component);
-    process.exit();
+  // default:
+  //   console.log('%s is not a known component.', component);
+  //   process.exit();
 }
 
 // update settings file.
