@@ -321,7 +321,6 @@ Configuration:
 
  - Libgit2 (`brew install libgit2` on OSX)
  - Nodegit
- - Uses https://github.com/mfenner/jekyll-travis configuration files for travis based build
  - pandoc v1.12+
 
 # Dev dependencies

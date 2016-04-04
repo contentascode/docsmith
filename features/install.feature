@@ -14,7 +14,8 @@ Feature: docsmith - content install
     Then I should have a ".travis.yml" file
     And I should have a "Gemfile" file with "github-pages"
     And I should have a "package.json" file
-    And I run "pjv -wr" I should see "valid: true" 
+    And I run "pjv -wr" 
+    And I should see "valid: true" 
 
   # Should fail with 'Can't figure out GitHub repo name'
 
@@ -38,5 +39,6 @@ Feature: docsmith - content install
     # And I should have a "Gemfile" file without "rake"
     And I should have a ".travis.yml" file
     And I should have a "package.json" file
-    And I run "pjv -wr" I should see "valid: true" 
+    And I run "pjv -wr" 
+    And I should see "valid: true" 
     # TODO Set environment variables and test _config.yml
