@@ -25,7 +25,7 @@
   "homepage": "https://github.com/contentascode/docsmith-init#readme",
   "keywords": [],
   "dependencies": {
-    "metalsmith": "^2.1.0",
+    "metalsmith": "contentascode/metalsmith",
     "metalsmith-broken-link-checker": "^0.1.9",
     "metalsmith-collections": "^0.7.0",
     "metalsmith-debug": "0.0.2",

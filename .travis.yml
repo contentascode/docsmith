@@ -40,7 +40,7 @@ install:
   - npm install -g codeclimate-test-reporter package-json-validator
   - rvm install 2.2.1
   - gem install travis 
-  - gem install github-pages
+  - bundle install --gemfile=templates/init-jekyll/Gemfile
   - stack setup
   - stack install pandoc
 
