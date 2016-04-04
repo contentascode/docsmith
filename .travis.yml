@@ -1,6 +1,10 @@
-os:
-  - linux
-  - osx
+matrix:
+  include:
+    - os: osx
+    - os: linux
+    - dist: trusty
+      sudo: required
+
 
 cache:
   directories:
@@ -13,11 +17,11 @@ sudo: false
 language: node_js
 
 node_js:
-  - "4.1"
-#   - "5"
+  - "4.2"
+  - "5"
 #   - "0.12"
 #   - "0.10"
-#   - "iojs"
+  - "iojs"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
@@ -38,8 +42,11 @@ after_script:
 addons:
   apt:
     sources:
+      - llvm-toolchain-precise-3.6
       - ubuntu-toolchain-r-test
     packages:
+      - clang-3.6
+      - g++-4.8
       - libstdc++-4.9-dev
       - pandoc
   code_climate:
@@ -48,3 +55,4 @@ addons:
 env:
   global:
     - GH_TOKEN=FAKE_TOKEN_FOR_TESTS
+    - DEBUG=*
