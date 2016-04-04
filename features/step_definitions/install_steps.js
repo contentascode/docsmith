@@ -70,7 +70,6 @@ module.exports = function () {
 
   });
 
-
   this.Then(/^I should( not)? see "([^"]*)"$/, function (negate, text) {
     // Write code here that turns the phrase above into concrete actions
     assert.equal(this.lastRun.stdout.indexOf(text) > -1, !negate, 
@@ -80,41 +79,13 @@ module.exports = function () {
 
   });
 
-  // this.Then(/^I run "([^"]*)" I should( not)? see "([^"]*)"$/, {timeout: 5000}, function (command, negate, output, callback) {
-
-  //   var executable = command.split(' ')[0];
-  //   command = command.split(' ').slice(1);
-  //   var world = this;
-  //   var cwd = path.join(world.tmpDir, "proj");
-
-  //   if (!folderExists(cwd)) {
-  //     fs.mkdirSync(cwd);
-  //   }
-
-  //   execFile(executable, command, {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
-  //      world.lastRun = {
-  //        error:  error,
-  //        stdout: stdout, //colors.strip(stdout),
-  //        stderr: stderr
-  //      };
-  //      if (error) {
-  //       console.log(stdout)
-  //       console.log(stderr)
-  //       callback(error);
-  //      }
-  //      assert.equal(stdout.indexOf(output) > -1, !negate);
-  //      callback();
-  //    });
-
-  // });
-
   this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
     assert.equal(fileExists(path.join(this.tmpDir, "proj", file)), !negate);
   });
 
   this.Then(/^I should( not)? have a "([^"]*)" folder$/, function (negate, file) {
     assert.equal(folderExists(path.join(this.tmpDir, "proj", file)), !negate,
-        'Expected folder to ' + negate ? 'not exist' : 'exit' + '\n' +
+        'Expected folder ' + file + ' to ' + ( negate ? 'not exist' : 'exit' ) + '\n' + 
         getAdditionalErrorText(this.lastRun));
   });
 
