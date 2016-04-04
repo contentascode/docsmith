@@ -26,7 +26,7 @@ node_js:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install pandoc nvm rvm ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install pandoc nvm ; fi
 
 install:
   - npm -g install npm@latest-2
