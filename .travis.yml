@@ -31,7 +31,8 @@ install:
   - npm -g install npm@latest-2
   - npm install -g
   - npm install -g codeclimate-test-reporter package-json-validator
-  - gem install travis github-pages
+  - gem install travis 
+  - gem install github-pages
 
 before_script:
   - which pandoc
