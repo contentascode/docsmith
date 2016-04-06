@@ -13,7 +13,10 @@
       "Gemfile.lock",
       "package.json",
       "metalsmith.json",
+      "metalsmith.tmp.json",
       "_site",
+      "_content.yml",
+      "_config.yml",
       "_includes",
       "_layouts",
       "_sass",
@@ -50,7 +53,8 @@
     },
     "metalsmith-in-place": {
       "engine": "liquid",
-      "pattern": "**/*.?(md|html)"
+      "includeDir": "_includes",
+      "pattern": [ "**/*.md", "**/*.xml", "**/*.html" ]
     },
     "metalsmith-pandoc": {
       "pattern": "**/*.md",
