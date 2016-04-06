@@ -1,33 +1,34 @@
 {
   "source": ".",
   "destination": "./_site/docsmith-init",
-  "metadata": {},
-  "plugins": {
-      "metalsmith-static": {
-        "src": "public",
-        "dest": "public"
-      },
-      "metalsmith-ignore": [
+  "ignore": [ 
+      "node_modules", 
+      "_site_jekyll", 
+      "_site_metalsmith",
       ".git",
       ".gitignore",
+      ".ruby-version",
       ".travis.yml",
-      "_content.yml",
+      "Gemfile",
+      "Gemfile.lock",
       "package.json",
       "metalsmith.json",
-      "metalsmith.tmp.json",
-      "**/.*",
-      "**/.*/**",
-      "node_modules/**",
-      "node_modules/**/.*",
-      "node_modules/**/.*.rej",
-      "node_modules/**/.*/**",
-      "_content.yml",
-      "_site/**",
-      "_includes/**",
-      "_layouts/**",
-      "public/**/*.*",
+      "_site",
+      "_includes",
+      "_layouts",
+      "_sass",
+      "css",
       "LICENSE",
       "README.md"
+    ],
+  "metadata": {},
+  "plugins": {
+    "metalsmith-static": {
+      "src": "public",
+      "dest": "public"
+    },
+    "metalsmith-ignore": [
+      "public/**/*.*"
     ],
     "metalsmith-drafts": {},
     "metalsmith-paths": {
