@@ -84,6 +84,6 @@ if (settings.generate.metalsmith) {
   })
 } else if (settings.generate.jekyll) {
   var config = program.config ? ['--config', program.config] : []
-  spawn('jekyll', ['build'].concat(config), { env: process.env, stdio: "inherit"});
+  spawn('bundle', ['exec', 'jekyll', 'build'].concat(config), { env: process.env, stdio: "inherit"});
 }
 
