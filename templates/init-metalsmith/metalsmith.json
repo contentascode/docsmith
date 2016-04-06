@@ -16,7 +16,6 @@
       "metalsmith.tmp.json",
       "_site",
       "_content.yml",
-      "_config.yml",
       "_includes",
       "_layouts",
       "_sass",
@@ -30,16 +29,17 @@
       "src": "public",
       "dest": "public"
     },
+    "metalsmith-metadata": {
+      "site": "_config.yml"
+    },
     "metalsmith-ignore": [
+      "_config.yml",
       "public/**/*.*"
     ],
     "metalsmith-drafts": {},
     "metalsmith-paths": {
       "property": "paths",
       "directoryIndex": "index.html"
-    },
-    "metalsmith-metadata": {
-      "site": "_config.yml"
     },
     "metalsmith-collections": {
       "pages": {
