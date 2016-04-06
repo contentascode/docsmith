@@ -33,7 +33,7 @@
     "fs-extra": "^0.26.5",
     "js-yaml": "^3.5.3",
     "lodash": "^4.6.1",
-    "metalsmith": "^2.1.0",
+    "metalsmith": "contentascode/metalsmith",
     "nodegit": "^0.12.1",
     "npmi": "^1.0.1",
     "tmp": "0.0.28"
