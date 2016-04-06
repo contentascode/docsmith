@@ -45,6 +45,10 @@ Content as Code aims to make it easy to start a website in just a few steps but 
 
 ## Getting Started
 
+First make sure you have the docsmith dependencies installed:
+ - You'll [need node and npm](https://nodejs.org/en/download/) (version 4.x - version 5 is not yet supported)
+ - You'll also [need pandoc](http://pandoc.org/installing.html) (version 1.12 or higher)
+
 The simplest way to get started is to fork one of our sample repos on github:
  - https://github.com/contentascode/blog: A template for a simple blog
  - https://github.com/contentascode/wiki: A template for a wiki
