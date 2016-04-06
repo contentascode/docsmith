@@ -66,4 +66,5 @@ addons:
 env:
   global:
     - GH_TOKEN=FAKE_TOKEN_FOR_TESTS
+    - CXX=g++-4.8
 #    - DEBUG=*
