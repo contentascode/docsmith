@@ -27,6 +27,7 @@
   "dependencies": {
     "metalsmith": "contentascode/metalsmith",
     "metalsmith-broken-link-checker": "^0.1.9",
+    "metalsmith-build-date": "iilab/metalsmith-build-date",
     "metalsmith-collections": "^0.7.0",
     "metalsmith-debug": "0.0.2",
     "metalsmith-dev": "^1.0.0",
@@ -35,7 +36,7 @@
     "metalsmith-in-place": "^1.4.3",
     "metalsmith-layouts": "contentascode/metalsmith-layouts",
     "metalsmith-markdown": "^0.2.1",
-    "metalsmith-metacopy": "^0.0.1",
+    "metalsmith-metacopy": "^0.2.0",
     "metalsmith-metadata": "contentascode/metalsmith-metadata",
     "metalsmith-pandoc": "contentascode/metalsmith-pandoc",
     "metalsmith-paths": "^2.1.2",

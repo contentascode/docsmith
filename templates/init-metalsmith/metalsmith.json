@@ -61,6 +61,7 @@
       "from": "markdown_github+definition_lists+markdown_in_html_blocks"
     },
     "metalsmith-debug": {},
+    "metalsmith-build-date": {},
     "metalsmith-metacopy": {
       "file": [ 
         { "src": "paths.href", "dest": "url" },
@@ -68,7 +69,8 @@
         { "src": "contents", "dest": "content" }
       ],
       "metadata": [
-        { "src": "collections", "dest": "site" }
+        { "src": "collections", "dest": "site" },
+        { "src": "date", "dest": "site.time" }
       ]
     },
     "metalsmith-permalinks": {
