@@ -44,32 +44,32 @@ if (settings.generate.metalsmith) {
         "/" : settings.publish.baseurl + "/"
       }, settings.publish.redirects)
 
-    config.plugins['metalsmith-serve'] = {       
+    config.plugins.push( { 'metalsmith-serve' : {       
       "document_root": "_site",
       "redirects": redirects,
       "http_error_files": {
         "404": settings.publish.baseurl + "/404.html"
       }
-    };
+    } } );
   }
 
   if (program.watch) {
-    config.plugins['metalsmith-watch'] = { 
+    config.plugins.push( { 'metalsmith-watch': { 
       "paths": {
         "${source}/**/*.md": true,
         "_layouts/**": "**/*.html",
         "_includes/**": "**/*.html"
       }
-    };
+    } } );
   }
   if (program.watch && program.reload) {
-    config.plugins['metalsmith-watch'].livereload = 35729
+    config.plugins.push( { 'metalsmith-watch' : { livereload: 35729 } } );
     config.metadata.customHTML = '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
   }
   if (program.validate) {
-    config.plugins['metalsmith-broken-link-checker'] = true;
+    config.plugins.push( { 'metalsmith-broken-link-checker': true } );
   }
-  config.plugins['metalsmith-ignore'].push("metalsmith.tmp.json");
+  config.plugins.find( x => { for (k in x) { return (k == 'metalsmith-ignore') } } )['metalsmith-ignore'].push("metalsmith.tmp.json");
   // Swallow the --watch option
   process.argv = []
 

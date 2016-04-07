@@ -9,3 +9,7 @@ integrate:
     build: npm
     validate:
       - links
+publish:
+  baseurl: docsmith-init
+  redirects: 
+    /redir : /section

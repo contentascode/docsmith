@@ -24,72 +24,98 @@
       "README.md"
     ],
   "metadata": {},
-  "plugins": {
-    "metalsmith-static": {
-      "src": "public",
-      "dest": "public"
-    },
-    "metalsmith-metadata": {
-      "site": "_config.yml"
-    },
-    "metalsmith-ignore": [
-      "_config.yml",
-      "public/**/*.*"
-    ],
-    "metalsmith-drafts": {},
-    "metalsmith-paths": {
-      "property": "paths",
-      "directoryIndex": "index.html"
-    },
-    "metalsmith-collections": {
-      "pages": {
-        "pattern": "!_posts/**/*!(.xml|.png|.css|.ico)"
-      },
-      "posts": {
-        "pattern": "_posts/*.md",
-        "sortBy": "date",
-        "reverse": true
+  "plugins": [
+    {
+      "metalsmith-static": {
+        "src": "public",
+        "dest": "public"
       }
     },
-    "metalsmith-in-place": {
-      "engine": "liquid",
-      "includeDir": "_includes",
-      "pattern": [ "**/*.md", "**/*.xml", "**/*.html" ]
+    {
+      "metalsmith-metadata": {
+        "site": "_config.yml"
+      }
     },
-    "metalsmith-pandoc": {
-      "pattern": "**/*.md",
-      "from": "markdown_github+definition_lists+markdown_in_html_blocks"
-    },
-    "metalsmith-debug": {},
-    "metalsmith-build-date": {},
-    "metalsmith-metacopy": {
-      "file": [ 
-        { "src": "paths.href", "dest": "url" },
-        { "src": "paths.name", "dest": "basename" },
-        { "src": "contents", "dest": "content" }
-      ],
-      "metadata": [
-        { "src": "collections", "dest": "site" },
-        { "src": "date", "dest": "site.time" }
+    {
+      "metalsmith-ignore": [
+        "_config.yml",
+        "public/**/*.*"
       ]
     },
-    "metalsmith-permalinks": {
-      "linksets": [{
-          "match": { "collection": "pages" },
-          "pattern": ":path"
-      },{
-          "match": { "collection": "posts" },
-          "pattern": ":basename/:title"
-      }]
+    {
+      "metalsmith-drafts": {}
     },
-    "metalsmith-layouts": {
-      "engine": "liquid",
-      "directory": "_layouts",
-      "pattern": "**/*.html",
-      "rename": true,
-      "default": "default.html",
-      "includeDir": "_includes",
-      "ext": ".html"
+    {
+      "metalsmith-paths": {
+        "property": "paths",
+        "directoryIndex": "index.html"
+      }
+    },
+    {
+      "metalsmith-collections": {
+        "pages": {
+          "pattern": "!_posts/**/*!(.xml|.png|.css|.ico)"
+        },
+        "posts": {
+          "pattern": "_posts/*.md",
+          "sortBy": "date",
+          "reverse": true
+        }
+      }
+    },
+    {
+      "metalsmith-in-place": {
+        "engine": "liquid",
+        "includeDir": "_includes",
+        "pattern": [ "**/*.md", "**/*.xml", "**/*.html" ]
+      }
+    },
+    {
+      "metalsmith-pandoc": {
+        "pattern": "**/*.md",
+        "from": "markdown_github+definition_lists+markdown_in_html_blocks"
+      }
+    },
+    {
+      "metalsmith-debug": {}
+    },
+    {
+      "metalsmith-build-date": {}
+    },
+    {
+      "metalsmith-metacopy": {
+        "file": [ 
+          { "src": "paths.href", "dest": "url" },
+          { "src": "paths.name", "dest": "basename" },
+          { "src": "contents", "dest": "content" }
+        ],
+        "metadata": [
+          { "src": "collections", "dest": "site" },
+          { "src": "date", "dest": "site.date" }
+        ]
+      }
+    },
+    {
+      "metalsmith-permalinks": {
+        "linksets": [{
+            "match": { "collection": "pages" },
+            "pattern": ":path"
+        },{
+            "match": { "collection": "posts" },
+            "pattern": ":basename/:title"
+        }]
+      }
+    },
+    {
+      "metalsmith-layouts": {
+        "engine": "liquid",
+        "directory": "_layouts",
+        "pattern": "**/*.html",
+        "rename": true,
+        "default": "default.html",
+        "includeDir": "_includes",
+        "ext": ".html"
+      }
     }
-  }
+  ]
 }
