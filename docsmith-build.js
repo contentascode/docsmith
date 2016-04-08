@@ -19,6 +19,7 @@ program
   .option('--reload', 'Live reload')
   .option('--validate', 'Validate links')
   .option('--config <config>', 'Specify configuration file')
+  .option('--destination <directory>', 'Specify build destination')
   .arguments('[component] [options]')
   .action(function(component) {
     component = component;
@@ -30,7 +31,19 @@ if (!settings.generate) {
 }
 
 if (settings.generate.metalsmith) {
-  var config = require(path.join(process.cwd(),'metalsmith.json'));
+  var config;
+  if (program.config && fileExists(path.join(process.cwd(),program.config))) {
+    var config = require(path.join(process.cwd(),program.config));
+  } else if (fileExists(path.join(process.cwd(),'metalsmith.json'))) {
+    var config = require(path.join(process.cwd(),'metalsmith.json'));
+  } else {
+    console.log("Could not find a metalsmith configuration file.")
+    process.exit(1)
+  }
+
+  if (program.destination) {
+    config.destination = program.destination
+  }
 
 //  var metalsmith = spawn('metalsmith', [''], { env: process.env, stdio: "inherit"});
 
@@ -87,3 +100,14 @@ if (settings.generate.metalsmith) {
   spawn('bundle', ['exec', 'jekyll', 'build'].concat(config), { env: process.env, stdio: "inherit"});
 }
 
+function fileExists(filePath)
+{
+    try
+    {
+        return fs.statSync(filePath).isFile();
+    }
+    catch (err)
+    {
+        return false;
+    }
+}
