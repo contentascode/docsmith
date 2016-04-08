@@ -14,12 +14,12 @@ var component;
 
 program
   .description('Builds or serves the current content')
-  .option('--serve', 'Serves')
-  .option('--watch', 'Serves and watches')
-  .option('--reload', 'Live reload')
-  .option('--validate', 'Validate links')
-  .option('--config <config>', 'Specify configuration file')
-  .option('--destination <directory>', 'Specify build destination')
+  .option('-s, --serve', 'Serves')
+  .option('-w, --watch', 'Serves and watches')
+  .option('-r, --reload', 'Live reload')
+  .option('-v, --validate', 'Validate links')
+  .option('-c, --config <config>', 'Specify configuration file')
+  .option('-d, --destination <directory>', 'Specify build destination')
   .arguments('[component] [options]')
   .action(function(component) {
     component = component;
@@ -67,18 +67,23 @@ if (settings.generate.metalsmith) {
   }
 
   if (program.watch) {
-    config.plugins.push( { 'metalsmith-watch': { 
+    var watch = { 'metalsmith-watch': { 
       "paths": {
         "${source}/**/*.md": true,
-        "_layouts/**": "**/*.html",
-        "_includes/**": "**/*.html"
+        "_layouts/**": "**/*.md",
+        "_includes/**": "**/*.md"
       }
-    } } );
+    } }
+    if (program.reload) {
+      watch['metalsmith-watch'].livereload = 35729;
+      config.metadata.customHTML = '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
+    }
+    config.plugins.push( watch );
   }
-  if (program.watch && program.reload) {
-    config.plugins.push( { 'metalsmith-watch' : { livereload: 35729 } } );
-    config.metadata.customHTML = '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
-  }
+  // if (program.watch && program.reload) {
+  //   config.plugins.push( { 'metalsmith-watch' : { livereload: 35729 } } );
+  //   config.metadata.customHTML = '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
+  // }
   if (program.validate) {
     config.plugins.push( { 'metalsmith-broken-link-checker': true } );
   }
