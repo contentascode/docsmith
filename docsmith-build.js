@@ -30,7 +30,16 @@ if (!settings.generate) {
   console.log('You do not have a static site generator installed.')
 }
 
-if (settings.generate.metalsmith) {
+if (settings.build && settings.build == "grunt") {
+  var config;
+  if (!fileExists(path.join(process.cwd(),'Gruntfile.js'))) {
+    console.log("Could not find a metalsmith configuration file.")
+    process.exit(1)
+  }
+  var grunt = spawn('grunt', [], { env: process.env, stdio: "inherit"});
+
+}
+else if (settings.generate.metalsmith) {
   var config;
   if (program.config && fileExists(path.join(process.cwd(),program.config))) {
     var config = require(path.join(process.cwd(),program.config));
@@ -57,7 +66,7 @@ if (settings.generate.metalsmith) {
         "/" : settings.publish.baseurl + "/"
       }, settings.publish.redirects)
 
-    config.plugins.push( { 'metalsmith-serve' : {       
+    config.plugins.push( { 'metalsmith-serve' : {
       "document_root": "_site",
       "redirects": redirects,
       "http_error_files": {
@@ -67,7 +76,7 @@ if (settings.generate.metalsmith) {
   }
 
   if (program.watch) {
-    var watch = { 'metalsmith-watch': { 
+    var watch = { 'metalsmith-watch': {
       "paths": {
         "${source}/**/*.md": true,
         "_layouts/**": "**/*.md",
@@ -87,7 +96,7 @@ if (settings.generate.metalsmith) {
   if (program.validate) {
     config.plugins.push( { 'metalsmith-broken-link-checker': true } );
   }
-  config.plugins.find( x => { for (k in x) { return (k == 'metalsmith-ignore') } } )['metalsmith-ignore'].push("metalsmith.tmp.json");
+  // config.plugins.find( x => { for (k in x) { return (k == 'metalsmith-ignore') } } )['metalsmith-ignore'].push("metalsmith.tmp.json");
   // Swallow the --watch option
   process.argv = []
 
