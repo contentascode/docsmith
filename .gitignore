@@ -2,3 +2,5 @@ node_modules
 secret.sh
 NOTES.md
 coverage
+instrumented
+templates
