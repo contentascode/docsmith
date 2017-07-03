@@ -29,14 +29,14 @@
   },
   "homepage": "https://github.com/contentascode/docsmith#readme",
   "dependencies": {
-    "commander": "^2.9.0",
-    "fs-extra": "^0.26.5",
-    "js-yaml": "^3.5.3",
-    "lodash": "^4.6.1",
+    "commander": "^2.11.0",
+    "fs-extra": "^3.0.1",
+    "js-yaml": "^3.8.4",
+    "lodash": "^4.17.4",
     "metalsmith": "contentascode/metalsmith",
-    "nodegit": "^0.12.1",
-    "npmi": "^1.0.1",
-    "tmp": "0.0.28"
+    "nodegit": "^0.18.3",
+    "npmi": "^2.0.1",
+    "tmp": "0.0.31"
   },
   "devDependencies": {
     "cucumber": "^0.9.5",
