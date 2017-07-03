@@ -67,7 +67,7 @@ You can make your new site available on the domain name of your choice. If you h
 
 The Content as Code workflow uses best practices to allow different people to contribute to your content project, in the way that large software engineering projects in the open source world do it.
 
-The sample repos use Github (soon Prose) to help with content editing. By default, all pages of your new website have built in links to  
+The sample repos use Github (soon Prose) to help with content editing. By default, all pages of your new website have built in links to
 
 ### Checking Links
 
@@ -94,27 +94,34 @@ This table aims to represent which components affect which stages of the content
  - = component : means that this component only works with the specified component.
  - - component : means that this component doesn't work with the specified component.
 
-| Component \ Stage |  Source  | Author |  Integrate  | Generate | Translate |  Publish   |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| github            | Key      |        | + travis    |          |           | + gh-pages |
-| gitlab            | Key      |        | + gitlab-ci |          |           |            |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| prose             | + github | Key    |             | + jekyll |           |            |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| travis            |          |        | Key         |          |           |            |
-| gitlab-ci         | - github |        | Key         |          |           |            |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| validate          |          |        | Change      |          |           |            |
-| validate links    |          |        | Change      |          |           |            |
-| validate style    |          |        | Change      |          |           |            |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| jekyll            |          |        |             | Key      |           |            |
-| metalsmith        |          |        |             | Key      |           |            |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| transifex         |          |        |             |          | Key       |            |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
-| gh-pages          | + github |        |             |          |           | Key        |
-|-------------------|----------|--------|-------------|----------|-----------|------------|
+
+| Component \ Stages |  Source  | Author | Build | Generate |  Integrate  | Collaborate | Translate |  Publish   |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| github             | Key      |        |       |          | + travis    |             |           | + gh-pages |
+| gitlab             | Key      |        |       |          | + gitlab-ci |             |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| prose              | + github | Key    |       | + jekyll |             |             |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| validate           |          |        |       |          | Change      |             |           |            |
+| validate links     |          |        |       |          | Change      |             |           |            |
+| validate style     |          |        |       |          | Change      |             |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| grunt              |          |        | Key   |          |             |             |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| jekyll             |          |        |       | Key      |             |             |           |            |
+| metalsmith         |          |        |       | Key      |             |             |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| travis             |          |        |       |          | Key         |             |           |            |
+| gitlab-ci          | - github |        |       |          | Key         |             |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| gitlab issues      |          |        |       |          |             | Key         |           |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| transifex          |          |        |       |          |             |             | Key       |            |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+| gh-pages           | + github |        |       |          |             |             |           | Key        |
+|--------------------|----------|--------|-------|----------|-------------|-------------|-----------|------------|
+
+
 
 ## Docsmith CLI tool
 
@@ -126,7 +133,7 @@ This table aims to represent which components affect which stages of the content
 
 ### install
 
- - ```content install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...). 
+ - ```content install``` : in a repo would read content.yml and create package.json, metalsmith.json and docker-compose.json and run necessary installations (npm install,...).
 
  - ```content install validate``` : Install default plugin suite in the integration stage (linkchecker) or the one specified in the `_content.yml` file.
 
@@ -146,7 +153,7 @@ This table aims to represent which components affect which stages of the content
 
 ### load / update / save
 
- - ```content load/pull``` : Get local content updates 
+ - ```content load/pull``` : Get local content updates
  - ```content load/pull <version>```: Get specific version.
  - ```content update```: Get remote content dependency updates.
  - ```content save/push``` : Push content source updates and advertise changes.
@@ -162,13 +169,13 @@ implementation: 'docsmith'  # Which implementation of content as code?
 
 #
 # Source
-# 
-#   Source repositories which contain the sources for the current project. 
-#   Note: These are not upstream dependencies which will be managed with metadata inside 
+#
+#   Source repositories which contain the sources for the current project.
+#   Note: These are not upstream dependencies which will be managed with metadata inside
 #   and alongside the source files.
 #
 
-source:                    
+source:
   github:                   # Defaults to github could also be gitlab or a local folder. Gollum for a wiki?
     owner: iilab
     repo: contentascode
@@ -177,7 +184,7 @@ source:
 
 #
 # Author
-#   
+#
 #   This is where the content is edited, manipulated and so on. Different authoring environment will have
 #   different capabilities (for instance for validation without a server round-trip or workflow aspects...).
 #   See the lib/components.js file for a first attempt at modeling these capabilities.
@@ -186,7 +193,7 @@ source:
 author:                  # What is the content authoring environment? Could be prose, realms,...
   - type: 'local'           # Maybe editor plugins could be proposed for desktop based edition.
   - type: 'github'
-  - type: 'prose'           
+  - type: 'prose'
 
 translate:
   - type: 'transifex'
@@ -201,7 +208,7 @@ generate:
 
 #
 # Integrate
-#   
+#
 #   These are the tools used to prepare and validate content and give feedback to authors and editors,
 #   including presenting staging or testing environments/artifacts of various versions that are being worked on.
 #   Note: Maybe this should be included in the publish component.
@@ -211,9 +218,9 @@ integrate:                  # Defaults to empty. Can be travis, or gitlab-ci
     build: 'npm'               # Which tool is orchestrating local integration tests.
     validate:               # Defaults to empty. List of validation scripts, for instance links,...
       - 'links'
-  travis:          
+  travis:
     branch: 'versions/*'
-    build: 'npm'           # Which tool is orchestrating integration 
+    build: 'npm'           # Which tool is orchestrating integration
     validate:
       - 'links'
   shared:                 # Shared component for isomorphic validations?
@@ -222,7 +229,7 @@ integrate:                  # Defaults to empty. Can be travis, or gitlab-ci
 
 #
 # Publish
-#   
+#
 #   These are the various channels where published versions will be available from.
 #
 
@@ -237,9 +244,9 @@ publish:
 
 #
 # Service
-#   
+#
 #   These are various additional services that are linked to various features that are useful
-#   for 
+#   for
 #
 
 service:
@@ -264,10 +271,10 @@ Depending on the chosen build system, different targets will be available for th
 # API
 
 Each component of the docsmith build pipeline passes to the next component a context (as this is managed via metalsmith) which is the current state of the file structure:
- - metadata 
+ - metadata
  - files
 
-## source 
+## source
 
  - pull: get the latest (or default) version from the content repo.
  - update: pulls dependencies (through git submodules or a package management approach or another yet to be developed approach)
@@ -280,9 +287,9 @@ Configures the build pipeline (for now metalsmith) with the proper and desired s
 
  * This module connects docsmith to a github repository as a content source.
  * Configuration options
-     - `repo`: 
+     - `repo`:
          + `url` : (Required) URL of repo.
-         + `branch`: (Optional - Defaults to master) 
+         + `branch`: (Optional - Defaults to master)
 
 ## build
 
@@ -329,5 +336,4 @@ Configuration:
 
 # Dev dependencies
  - Cucumber-js
- - 
-
+ -
