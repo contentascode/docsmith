@@ -11,6 +11,8 @@ require('longjohn');
 const packages = require('./packages');
 const workspaces = require('./workspaces');
 
+const pad = (string, char, length) => string + char.repeat(length - string.length);
+
 function init({ template, config, link, defaults }) {
   // Content as code CLI tool (i.e. not the bare `content` command)
   fs.pathExists(path.join(config, './content.yml'), (err, exists) => {
@@ -33,7 +35,8 @@ function init({ template, config, link, defaults }) {
           chalk.grey('===========                                                      ===========') +
           '\n' +
           chalk.grey('===========') +
-          '            SAFETAG Toolkit Initialisation            ' +
+          '            ' +
+          pad(content.name + ' Initialisation', ' ', 42) +
           chalk.grey('===========') +
           '\n' +
           chalk.grey('===========                                                      ===========') +

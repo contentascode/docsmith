@@ -3,7 +3,14 @@ const path = require('path');
 const npm = require('npm');
 // var npmi = require('npmi');
 
-const templates_path = path.join(path.dirname(fs.realpathSync(__filename)), '../templates');
+let templates_path;
+
+try {
+  templates_path = path.join(path.dirname(fs.realpathSync(__filename)), './templates');
+} catch (e) {
+  // Ignoring for now
+  // TODO: Finalise making templates as packages
+}
 
 function init(template) {
   // Built in templates
