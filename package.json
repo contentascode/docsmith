@@ -15,7 +15,8 @@
     "lint": "eslint src/*.js",
     "build": "babel --source-maps --ignore test src -d lib",
     "build:watch": "nodemon --watch src --exec npm run build",
-    "test": "node_modules/cucumber/bin/cucumber.js -- features"
+    "pretest": "npm -s run build",
+    "test": "cucumberjs --fail-fast -- features"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,8 @@
     "bluebird": "^3.5.0",
     "co-fs-extra": "^1.2.1",
     "commander": "^2.11.0",
+    "create-output-stream": "0.0.1",
+    "debug": "^2.6.8",
     "extfs": "0.0.7",
     "fs-extra": "^3.0.1",
     "js-yaml": "^3.8.4",
@@ -61,6 +64,7 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "istanbul": "^0.4.2",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "package-json-validator": "github:gorillamania/package.json-validator"
   }
 }

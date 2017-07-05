@@ -26,7 +26,7 @@ program
 
 fs.isEmpty('.', function(empty) {
   if (empty || program.force) {
-    if (template && caller.content()) {
+    if (caller.original()) {
       // initialises from a built-in template
       templates.init(template);
     } else {

@@ -5,17 +5,17 @@ Feature: docsmith - content install
 
   Scenario: Starting from scratch and running content install
     When I run "content init jekyll"
-    And I run "content install --test"
+    And I run "content install --force --test"
     Then I should see "No modifications."
 
   Scenario: Starting from scratch and running content install travis
     When I run "content init jekyll"
-    And I run "content install --test travis"
+    And I run "content install --force --test travis"
     Then I should have a ".travis.yml" file
     And I should have a "Gemfile" file with "github-pages"
     And I should have a "package.json" file
-    And I run "pjv -wr" 
-    And I should see "valid: true" 
+    And I run "pjv -wr"
+    And I should see "valid: true"
 
   # Should fail with 'Can't figure out GitHub repo name'
 
@@ -25,7 +25,7 @@ Feature: docsmith - content install
 
   Scenario: Starting with a github-pages build
     Given I clone the contentascode "fixture/build-github-pages" branch
-    When I run "content install --test"
+    When I run "content install --force --test"
     Then I should see "No modifications."
     And I should have a "Gemfile" file with "github-pages"
     And I should not have a ".travis.yml" file
@@ -33,12 +33,12 @@ Feature: docsmith - content install
 
   Scenario: Changing from a github-pages build to a travis build
     Given I clone the contentascode "fixture/build-github-pages" branch
-    When I run "content install --test travis"
+    When I run "content install --force --test travis"
     Then I should have a "Gemfile" file with "github-pages"
     # And I should have a "Gemfile" file without "~> 15" # github-pages shoudn't be pinned
     # And I should have a "Gemfile" file without "rake"
     And I should have a ".travis.yml" file
     And I should have a "package.json" file
-    And I run "pjv -wr" 
-    And I should see "valid: true" 
+    And I run "pjv -wr"
+    And I should see "valid: true"
     # TODO Set environment variables and test _config.yml

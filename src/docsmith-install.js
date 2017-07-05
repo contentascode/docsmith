@@ -7,13 +7,14 @@
 const _ = require('lodash');
 const program = require('commander');
 const templates = require('./docsmith/templates');
-const settings = require('./docsmith/settings');
-// const components = require('./docsmith/components');
+const settings = require('./docsmith/utils/settings');
+// const components = require('../components');
 const yaml = require('js-yaml');
 const fs = require('fs-extra');
 const path = require('path');
 const exec = require('child_process').execFile;
 
+const id = x => x;
 const cp = require('child_process');
 const git = require('nodegit');
 
@@ -23,6 +24,7 @@ let component, gh_token;
 
 program
   .description('install one or more components with their default settings or a specific plugin')
+  .option('-f, --force', 'Initialise whether the current directory is empty or not.', id, false)
   .option('--git-name <git_name>', 'Overrides the current git user name or GIT_NAME env variable for the travis plugin')
   .option('--git-email <git_email>', 'Overrides the current git email or GIT_EMAIL env variablefor the travis plugin')
   .option('--gh-token <github_token>', 'Overrides GH_TOKEN env variable for the travis plugin')
@@ -41,6 +43,11 @@ program
   .parse(process.argv);
 
 let newSettings, plugin;
+
+if (!program.force) {
+  console.log('EXPERIMENTAL -  This is probably not working. Use --force to bypass this warning.');
+  process.exit(0);
+}
 
 if (!curSettings.integrate) curSettings.integrate = {};
 
@@ -78,8 +85,8 @@ switch (component) {
       // necessitate more of a Make or equivalent approach.
 
       create_travis_yml(gh_token)
-        .then(jekyll_config('../lib/components/travis/_config.yml', '_config.yml'))
-        .then(npm_build('../lib/components/travis/npm_build.yml', 'package.json'))
+        .then(jekyll_config('../components/travis/_config.yml', '_config.yml'))
+        .then(npm_build('../components/travis/npm_build.yml', 'package.json'))
         .then(function() {
           console.log('You have just installed travis');
           console.log('You will need to:');
@@ -161,7 +168,7 @@ function create_travis_yml(gh_token) {
     // TODO: Refactor to separate file merge from token generation. Use Object.assign approach like for npm_build.
 
     const travis_yml = yaml.safeLoad(
-      fs.readFileSync(path.join(templates.path, '../lib/components/travis/.travis.yml'), 'utf8')
+      fs.readFileSync(path.join(templates.path, '../components/travis/.travis.yml'), 'utf8')
     );
 
     let git_name, git_email;

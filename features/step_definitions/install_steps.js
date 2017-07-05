@@ -1,142 +1,133 @@
-module.exports = function () {
+const execFile = require('child_process').execFile;
+const path = require('path');
+const git = require('nodegit');
+const fs = require('fs');
+const assert = require('assert');
 
-  var execFile = require('child_process').execFile;
-  var path = require('path');
-  var git = require("nodegit");
-  var fs = require('fs');
-  var assert = require('assert')
+const helpers = require('../support/helpers');
+const normalizeText = helpers.normalizeText;
+const getAdditionalErrorText = helpers.getAdditionalErrorText;
 
-  var helpers = require('../support/helpers');
-  var normalizeText = helpers.normalizeText;
-  var getAdditionalErrorText = helpers.getAdditionalErrorText;
+module.exports = function() {
+  this.Given(/^I clone the contentascode "([^"]*)" branch$/, { timeout: 10000 }, function(branch, callback) {
+    const world = this;
 
-  this.Given(/^I clone the contentascode "([^"]*)" branch$/,  {timeout: 10000}, function (branch, callback) {
-    var world = this;
+    const url = 'https://github.com/iilab/contentascode';
+    const clonePath = path.join(world.tmpDir, 'proj');
 
-    var url = "https://github.com/iilab/contentascode";
-    var clonePath = path.join(world.tmpDir, "proj");
-
-    function options(){
-        var nodegitOptions = {
-            checkoutBranch: branch,
-            fetchOpts: {
-              callbacks: {
-                certificateCheck: function() {
-                  return 1;
-              }
+    function options() {
+      const nodegitOptions = {
+        checkoutBranch: branch,
+        fetchOpts: {
+          callbacks: {
+            certificateCheck() {
+              return 1;
             }
           }
-        };
+        }
+      };
 
-        return nodegitOptions;
+      return nodegitOptions;
     }
 
     // Clone a given repository into a temporary folder.
-    git.Clone(url, clonePath, options())
-    // Look up this known commit.
-    .then(function(repo) {
-//      console.log(repo instanceof git.Repository);
-//      console.log('hi!')
-      callback();
-    })
-    .catch(function(err) { 
-      callback(err); 
-    });
+    git
+      .Clone(url, clonePath, options())
+      // Look up this known commit.
+      .then(function(repo) {
+        //      console.log(repo instanceof git.Repository);
+        //      console.log('hi!')
+        console.log('repo', repo);
+        callback();
+      })
+      .catch(function(err) {
+        callback(err);
+      });
   });
 
-  this.Given(/^I run "([^"]*)"$/, {timeout: 100000}, function (command, callback) {
-
-    var executable = command.split(' ')[0];
+  this.Given(/^I run "([^"]*)"$/, { timeout: 100000 }, function(command, callback) {
+    const executable = command.split(' ')[0];
     command = command.split(' ').slice(1);
-    var world = this;
-    var cwd = path.join(world.tmpDir, "proj");
+    const world = this;
+    const cwd = path.join(world.tmpDir, 'proj');
 
     if (!folderExists(cwd)) {
       fs.mkdirSync(cwd);
     }
-    execFile(executable, command, {cwd: cwd, env: process.env}, function (error, stdout, stderr) {
-       world.lastRun = {
-         error:  error,
-         stdout: stdout, //colors.strip(stdout),
-         stderr: stderr
-       };
-       if (error) {
-        console.log(stdout)
-        console.log(stderr)
+
+    execFile(executable, command, { cwd, env: process.env }, function(error, stdout, stderr) {
+      world.lastRun = {
+        error,
+        stdout, //colors.strip(stdout),
+        stderr
+      };
+      if (error) {
+        console.log(stdout);
+        console.log(stderr);
         callback(error);
-       }
-       callback();
-     });
-
+      }
+      callback();
+    });
   });
 
-  this.Then(/^I should( not)? see "([^"]*)"$/, function (negate, text) {
+  this.Then(/^I should( not)? see "([^"]*)"$/, function(negate, text) {
     // Write code here that turns the phrase above into concrete actions
-    assert.equal(this.lastRun.stdout.indexOf(text) > -1, !negate, 
-        'Expected output to contain the following:\n' + text + '\n' +
-        'Got:\n' + normalizeText(this.lastRun.stdout) + '\n' +
-        getAdditionalErrorText(this.lastRun));
-
+    assert.equal(
+      this.lastRun.stdout.indexOf(text) > -1,
+      !negate,
+      'Expected output to contain the following:\n' +
+        text +
+        '\n' +
+        'Got:\n' +
+        normalizeText(this.lastRun.stdout) +
+        '\n' +
+        getAdditionalErrorText(this.lastRun)
+    );
   });
 
-  this.Then(/^I should( not)? have a "([^"]*)" file$/, function (negate, file) {
-    assert.equal(fileExists(path.join(this.tmpDir, "proj", file)), !negate);
+  this.Then(/^I should( not)? have a "([^"]*)" file$/, function(negate, file) {
+    assert.equal(fileExists(path.join(this.tmpDir, 'proj', file)), !negate);
   });
 
-  this.Then(/^I should( not)? have a "([^"]*)" folder$/, function (negate, file) {
-    assert.equal(folderExists(path.join(this.tmpDir, "proj", file)), !negate,
-        'Expected folder ' + file + ' to ' + ( negate ? 'not exist' : 'exit' ) + '\n' + 
-        getAdditionalErrorText(this.lastRun));
+  this.Then(/^I should( not)? have a "([^"]*)" folder$/, function(negate, file) {
+    assert.equal(
+      folderExists(path.join(this.tmpDir, 'proj', file)),
+      !negate,
+      'Expected folder ' + file + ' to ' + (negate ? 'not exist' : 'exit') + '\n' + getAdditionalErrorText(this.lastRun)
+    );
   });
 
-  this.Then(/^I should have a "([^"]*)" file with(out)? "([^"]*)"$/, function (file, negate, text, callback) {
+  this.Then(/^I should have a "([^"]*)" file with(out)? "([^"]*)"$/, function(file, negate, text, callback) {
     // Write code here that turns the phrase above into concrete actions
-    var world = this;
-    var cwd = path.join(world.tmpDir, "repo");
-    var absoluteFilePath = path.join(world.tmpDir, "proj", file);
-    fs.readFile(absoluteFilePath, 'utf8', function (err, content){
-      if (err) { return callback(err); }
+    const world = this;
+    // const cwd = path.join(world.tmpDir, 'repo');
+    const absoluteFilePath = path.join(world.tmpDir, 'proj', file);
+    fs.readFile(absoluteFilePath, 'utf8', function(err, content) {
+      if (err) {
+        return callback(err);
+      }
 
-      var fileContent = normalizeText(content);
-      expectedContent = normalizeText(text);
+      const fileContent = normalizeText(content);
+      const expectedContent = normalizeText(text);
 
       assert.equal(fileContent.indexOf(expectedContent) > -1, !negate);
       callback();
     });
   });
 
-  function fileExists(filePath)
-  {
-      try
-      {
-          return fs.statSync(filePath).isFile();
-      }
-      catch (err)
-      {
-          return false;
-      }
+  function fileExists(filePath) {
+    try {
+      return fs.statSync(filePath).isFile();
+    } catch (err) {
+      return false;
+    }
   }
 
-  function folderExists(folderPath)
-  {
-      try
-      {
-          return fs.statSync(folderPath).isDirectory();
-      }
-      catch (err)
-      {
-          return false;
-      }
+  function folderExists(folderPath) {
+    try {
+      return fs.statSync(folderPath).isDirectory();
+    } catch (err) {
+      return false;
+    }
   }
-
-  function normalizeText(text) {
-    return text.replace(/\033\[[0-9;]*m/g, '')
-      .replace(/\r\n|\r/g, '\n')
-      .replace(/^\s+/g, '')
-      .replace(/\s+$/g, '')
-      .replace(/[ \t]+\n/g, '\n')
-      .replace(/\\/g, '/')
-      .replace(/\d+m\d{2}\.\d{3}s/, '<duration-stat>');
-  }
-
 };

@@ -14,12 +14,12 @@ process.once('SIGINT', function() {
 });
 
 program
+  .command('init [template]', 'initialise the current folder with the default or specified template')
+  .command('start', 'build, serve and watch content for changes')
   .command(
     'install [component] [plugin]',
-    'install one or more components with their default settings or a specific plugin'
+    'EXPERIMENTAL - install one or more components with their default settings or a specific plugin'
   )
-  .command('init [template]', 'initialise the current folder with the default or specified template')
-  .command('build', 'build the content locally')
-  .command('start', 'build, serve and watch content for changes')
-  .command('status', 'displays current configuration')
+  .command('build', 'EXPERIMENTAL - build the content locally')
+  .command('status', 'EXPERIMENTAL - displays current configuration')
   .parse(process.argv);

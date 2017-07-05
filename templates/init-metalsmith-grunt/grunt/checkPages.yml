@@ -1,0 +1,26 @@
+development:
+  options:
+    pageUrls:
+      - "http://localhost:9001/"
+    checkLinks: true
+    linksToIgnore:
+      - "http://localhost:9001/404.html"
+    noEmptyFragments: false
+    noLocalLinks: false
+    noRedirects: false
+    onlySameDomain: false
+    preferSecure: true
+    queryHashes: true
+    checkCaching: true
+    checkCompression: false
+    checkXhtml: false
+    summary: true
+    terse: false
+    maxResponseTime: 200
+    userAgent: "custom-user-agent/1.2.3"
+staging:
+  options:
+    pageUrls:
+      - "https://openintegrity.org/"
+    checkLinks: true
+    maxResponseTime: 500

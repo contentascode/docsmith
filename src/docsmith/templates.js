@@ -1,21 +1,17 @@
+const debug = require('debug')('docsmith:templates');
 const fs = require('fs-extra');
 const path = require('path');
 const npm = require('npm');
 // var npmi = require('npmi');
 
-let templates_path;
+// TODO: Finalise making templates as packages
+const templates_path = path.join(path.dirname(fs.realpathSync(__filename)), '../../templates');
 
-try {
-  templates_path = path.join(path.dirname(fs.realpathSync(__filename)), './templates');
-} catch (e) {
-  // Ignoring for now
-  // TODO: Finalise making templates as packages
-}
-
-function init(template) {
+function init(template = 'metalsmith') {
   // Built in templates
   if (template == 'jekyll' || template == 'metalsmith') {
     try {
+      debug('template file', path.join(templates_path, 'init-' + template));
       fs.copy(
         path.join(templates_path, 'init-' + template),
         '.',

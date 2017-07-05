@@ -1,0 +1,29 @@
+language: node_js
+sudo: false
+node_js:
+  - '4.2'
+branches:
+  except:
+    - gh-pages
+cache:
+  bundler: true
+  directories:
+    - node_modules
+    - $HOME/.nvm
+install:
+  - npm i pm2 http-server contentascode/broken-link-checker -g
+  - npm install
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: npm run deploy
+env:
+  global:
+    - GH_USERNAME=jmatsushita
+    - CONFIG_OWNER=contentascode
+    - CONFIG_REPO=docsmith-init
+    - secure: >
+        "mswv2uGnDwN1AGTJ8q9/hV22A3N7cEPyKkm4D/xm4/ozpbCjDmBethsh9ancPqB1+k7wubH1RZfZiCSq7U1IIyFzueZZ55BfR1ww1DHiN670U/3VtrcqBAT2xSQamL3nIKpI8GOoAxelrmspz5Y3N7ggzwbab4KGXRKyP8e6WEGObC/+QFUG1q57+8hLdOG15M3thQbG8L+jPUHt+MU1DqrCwAL7+lKUxh2CIZB/j+64Let9UPuZ/OvefqLaVjVR3bk2gdIVOQTjlH2SwEHIiRhXmmp99v3UYoFmBFj5BDgxOzEGENMt2bnTJC6BghJtxHFXAbeuMUCeQghrsvsOnFPCEsjbtvuWS5LfZAWMnPaOuRCZi5N4KkvqqJhzju5UsCgXIxiaRCpOAWkkK/TbZHnbsqYFBL0u5RBqPa39pGc/tlJBrB7MbSuQ5QKZjqFQJ8YdQ3PkGtFiJt7AzkTeR2Oeh6AkyF/iHhNm9q5ZsLgm82yk02DFsubyXmK1wO0CvgTgtC3eNjn93l7DloBhrA87ZCtgkjlYV9rPEjXto4CZBo6CCfC/YVfH5TurbAI3mCTw4y8HYnClsVdC5ymO1PdtCeffUdGsnXcmYQVG1OdhnCOspZvSOcyhQWXyd7IaWBtf1MYl2UkvK6YESGPr/wcO1zWJ/i4DtNC1ylXsR1s="
+addons:
+  apt_packages:
+    - pandoc

@@ -5,15 +5,18 @@
  */
 
 const program = require('commander');
-const settings = require('./docsmith/settings').settings;
+const settings = require('./docsmith/utils/settings').settings;
 const spawn = require('child_process').spawn;
 const path = require('path');
 const fs = require('fs');
 
 let component;
 
+const id = x => x;
+
 program
   .description('Builds or serves the current content')
+  .option('-f, --force', 'Initialise whether the current directory is empty or not.', id, false)
   .option('-s, --serve', 'Serves')
   .option('-w, --watch', 'Serves and watches')
   .option('-r, --reload', 'Live reload')
@@ -26,8 +29,14 @@ program
   })
   .parse(process.argv);
 
+if (!program.force) {
+  console.log('EXPERIMENTAL -  This is probably not working. Use --force to bypass this warning.');
+  process.exit(0);
+}
+
 if (component) console.log('Ignoring option component', component);
 
+console.log('settings', settings);
 if (!settings.generate) {
   console.log('You do not have a static site generator installed.');
 }

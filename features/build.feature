@@ -5,12 +5,12 @@ Feature: docsmith - content build
 
   Scenario: Starting from metalsmith default template and run content build
     When I run "content init"
-    And I run "content build"
+    And I run "content build --force"
     And I should have a "_site" folder
     And I should see "successfully built"
 
   Scenario: Starting from jekyll template and run content build
     When I run "content init jekyll"
-    And I run "content build"
+    And I run "content build --force"
     And I should have a "_site" folder
     And I should see "done"

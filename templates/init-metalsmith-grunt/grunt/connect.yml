@@ -1,0 +1,19 @@
+options:
+  port: "<%= ports.app %>"
+  livereload: "<%= ports.livereload %>"
+  hostname: "localhost"
+livereload:
+  options:
+    open: true
+    base: "<%= paths.dist %>"
+test:
+  options:
+    port: "<%= ports.test %>"
+    base:
+      - "<%= paths.dist %>"
+    livereload: false
+dist:
+  options:
+    open: true
+    base: "<%= paths.dist %>"
+    livereload: false

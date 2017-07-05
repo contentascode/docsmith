@@ -1,0 +1,50 @@
+{
+  "name": "docsmith-init",
+  "version": "0.0.1",
+  "description": "Empty project for docsmith",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/contentascode/docsmith-init.git"
+  },
+  "author": "Jun Matsushita",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/contentascode/docsmith-init/issues"
+  },
+  "scripts": {
+    "clean": "rm -rf $CONFIG_REPO && rm _branch.yml",
+    "build": "content build -d $CONFIG_REPO",
+    "test": "npm run build && echo \"Do some validations...\" && npm run test-links",
+    "test-links": "pm2 -s stop hs || true && pm2 -s delete hs || true && pm2 -f start `which hs` -- -p 8080 . && blc -s -r --input http://127.0.0.1:8080/$CONFIG_REPO | tee /dev/tty | grep -z '. 0 broken\\.[[:space:]]\\+Elapsed'",
+    "deploy": "npm run deploy-push",
+    "deploy-push": "cd $CONFIG_REPO && git init && git config user.email \"$GIT_EMAIL\" && git config user.name \"$GIT_NAME\" && git remote add upstream https://${GH_USERNAME}:${GH_TOKEN}@github.com/${CONFIG_OWNER}/${CONFIG_REPO}.git && git fetch upstream && git reset upstream/gh-pages && touch .nojekyll && git add -A . && git commit -a -m \"Travis build $TRAVIS_BUILD_NUMBER\" && git push --quiet upstream HEAD:gh-pages\n",
+    "prebuild": "if [ $TRAVIS_PULL_REQUEST -eq 'true'] ; then TRAVIS_BRANCH=$TRAVIS_COMMIT ; fi && echo \"github:\\n  current_branch: $TRAVIS_BRANCH\" > _branch.yml\n",
+    "postbuild": "rm _branch.yml"
+  },
+  "homepage": "https://github.com/contentascode/docsmith-init#readme",
+  "keywords": [],
+  "dependencies": {
+    "metalsmith": "contentascode/metalsmith",
+    "metalsmith-broken-link-checker": "^0.1.9",
+    "metalsmith-build-date": "iilab/metalsmith-build-date",
+    "metalsmith-collections": "^0.7.0",
+    "metalsmith-debug": "0.0.2",
+    "metalsmith-dev": "^1.0.0",
+    "metalsmith-drafts": "0.0.1",
+    "metalsmith-ignore": "^0.1.2",
+    "metalsmith-in-place": "^1.4.3",
+    "metalsmith-layouts": "^1.8.1",
+    "metalsmith-markdown": "^0.2.1",
+    "metalsmith-metacopy": "^0.2.0",
+    "metalsmith-metadata": "contentascode/metalsmith-metadata",
+    "metalsmith-pandoc": "contentascode/metalsmith-pandoc",
+    "metalsmith-paths": "^2.1.2",
+    "metalsmith-permalinks": "^0.5.0",
+    "metalsmith-serve": "0.0.7",
+    "metalsmith-static": "0.0.5",
+    "metalsmith-watch": "^1.0.1",
+    "moment": "^2.12.0",
+    "tinyliquid": "github:contentascode/tinyliquid"
+  }
+}

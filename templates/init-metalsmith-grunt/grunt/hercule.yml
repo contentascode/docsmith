@@ -1,0 +1,7 @@
+content:
+  files:
+  -
+    expand: true
+    cwd: "content"
+    src: [ "**/*.md" ]
+    dest: '_tmp/'

@@ -1,3 +1,4 @@
+const debug = require('debug')('docsmith');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const path = require('path');
@@ -8,12 +9,15 @@ const repository = p => path.join(process.env.HOME, '.content', p);
 
 // Resolve content config file
 const resolve = [local('content.yml'), local('_content.yml'), repository('content.yml')];
-
+debug('resolve', resolve);
 let settings;
 
 try {
   // Get document, or throw exception on error
   const config_path = resolve[resolve.map(fs.existsSync).findIndex(id)];
+
+  debug('resolve.map(fs.existsSync)', resolve.map(fs.existsSync));
+  debug('config_path', config_path);
   if (!config_path) {
     console.log('Cannot find content as code configuration.');
     console.log(
