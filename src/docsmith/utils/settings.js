@@ -7,8 +7,6 @@ const id = x => x;
 const local = p => path.join(process.cwd(), p);
 const repository = p => path.join(process.env.HOME, '.content', p);
 
-debug('trace')
-console.trace()
 // Resolve content config file
 const resolve = [local('content.yml'), local('_content.yml'), repository('content.yml')];
 debug('resolve', resolve);
@@ -68,9 +66,9 @@ define('DEFAULT_TRAVIS', {
 
 // Brittle...
 const instance = path.basename(process.argv[1]).split('-')[0];
-debug('instance', instance)
+debug('instance', instance);
 const pkg_json = path.join(process.argv[1].split('/bin/')[0], 'lib/node_modules/', instance, 'package.json');
-debug('pkg_json', pkg_json)
+debug('pkg_json', pkg_json);
 const description = require(pkg_json).description;
 
 module.exports.instance = instance;

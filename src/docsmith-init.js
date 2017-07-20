@@ -17,6 +17,7 @@ program
   .option('-f, --force', 'Initialise whether the current directory is empty or not.')
   .option('--defaults', 'Accepts defaults prompts and skips confirmation.')
   .option('-l, --link', 'For development purposes. Link local packages.')
+  .option('--verbose', 'Display npm log.')
   .action(function(templ) {
     template = templ;
   })
@@ -31,7 +32,13 @@ fs.isEmpty('.', function(empty) {
       templates.init(template);
     } else {
       // called from a content as code instance, initialise from the instance configuration
-      init.run({ template, config: caller.path(true), link: program.link, defaults: program.defaults });
+      init.run({
+        template,
+        config: caller.path(true),
+        link: program.link,
+        defaults: program.defaults,
+        verbose: program.verbose
+      });
     }
   } else {
     console.warn('This directory is not empty. Aborting init. Use --force to ignore current content.');

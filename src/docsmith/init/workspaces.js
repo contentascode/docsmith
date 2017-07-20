@@ -15,7 +15,7 @@ const deploy = function deploy(workspaces, repository, done) {
       // This should execute the init script of the workspace
       // via metalsmith programmatically with the .content folder as source and
       // the destination in pwd.
-      const base = realPath(path.join(repository, 'node_modules', name));
+      const base = realPath(path.join(repository, 'packages', name));
       // console.log('base', base);
       async.eachOfSeries(
         workspace,
@@ -32,15 +32,18 @@ const deploy = function deploy(workspaces, repository, done) {
             }
             debug('>> Finished deploying: ', name);
 
-            cb();
+            return cb();
           });
         },
-        callback
+        (err, res) => {
+          // console.trace();
+          return callback(err, res);
+        }
       );
     },
     (err, results) => {
       if (err) return done(err);
-      done(null, results);
+      return done(null, results);
     }
   );
 };

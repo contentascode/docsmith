@@ -25,7 +25,9 @@ const debugui = require('metalsmith-debug-ui');
 // Pass config file path, config overrides and make async.
 module.exports = function(config, overrides, callback) {
   const name = basename(config, extname(config));
+  debug('name', name);
   const dir = resolve(process.cwd(), dirname(config));
+  debug('dir', dir);
 
   let json;
 
@@ -96,8 +98,8 @@ module.exports = function(config, overrides, callback) {
         try {
           const local = resolve(dir, name);
           const npm = resolve(dir, 'node_modules', name);
-          debug('resolving npm package with :', path.join(dir, 'node_modules', name))
-          debug('ls ' + dir, fs.readdirSync(dir).join('\n'))
+          debug('resolving npm package with :', path.join(dir, 'node_modules', name));
+          // debug('ls ' + dir, fs.readdirSync(dir).join('\n'));
           if (exists(local) || exists(local + '.js')) {
             mod = require(local);
           } else if (exists(npm)) {
@@ -118,7 +120,8 @@ module.exports = function(config, overrides, callback) {
       }
     },
     err => {
-      return callback(err);
+      if (err) return callback(err);
+      return;
     }
   );
 
@@ -147,7 +150,7 @@ module.exports = function(config, overrides, callback) {
     if (err) return callback(fatal(err.message, err));
     log('successfully built files.');
 
-    callback();
+    return callback();
   });
 
   /**

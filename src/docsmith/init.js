@@ -14,7 +14,7 @@ const workspaces = require('./init/workspaces');
 
 const pad = (string, char, length) => (string + char.repeat(length)).slice(0, length);
 
-function init({ template, config, link, defaults }) {
+function init({ template, config, link, defaults, verbose }) {
   // Content as code CLI tool (i.e. not the bare `content` command)
   fs.pathExists(path.join(config, './content.yml'), (err, exists) => {
     if (err) return exit('Error while checking if content.yml exists', err); // => null
@@ -71,77 +71,73 @@ function init({ template, config, link, defaults }) {
         }
         if (err) exit('Error while processing prompt results', err);
 
-        if (fs.existsSync(responses.repository)) {
-          debug('> Content repository folder already exists. Continuing.');
-        } else {
-          debug('> Content repository folder does not exists. Creating folder.');
-          fs.mkdirSync(responses.repository);
-          debug('> Content repository ' + responses.repository + ' has been created.');
-        }
+        fs.existsSync(responses.repository) || fs.mkdirSync(responses.repository);
+        debug('> Content repository: ', responses.repository);
 
-        if (fs.existsSync(path.join(responses.repository, 'package.json'))) {
-          debug('> Content repository configuration file already exists. Continuing.');
-        } else {
-          debug('> Content repository configuration file does not exists. Creating.');
-          fs.writeFileSync(path.join(responses.repository, 'package.json'), JSON.stringify({ private: true }), 'utf-8');
-          debug('> Content repository configuration ' + responses.repository + '/package.json has been created.');
-        }
+        const pkgs = path.join(responses.repository, 'packages');
+        fs.existsSync(pkgs) || fs.mkdirSync(pkgs);
+        debug('> Content packages directory: ', pkgs);
 
         // Change working directory temporarily as npm api is insufficient.
         const current = process.cwd();
         try {
-          process.chdir(responses.repository);
+          process.chdir(pkgs);
+          debug('changed directory: ', pkgs);
         } catch (err) {
           exit('\nError while changing directory', err);
         }
-        packages.install({ repos: content.packages, repository: responses.repository, link }, (err, installed) => {
-          if (err) return exit('\nError while installing packages', err);
-          // console.log('Content packages installed:' + JSON.stringify(installed));
-          // Deploying worksaces
+        packages.install(
+          { packages: content.packages, repository: responses.repository, link, verbose },
+          (err, installed) => {
+            if (err) return exit('\nError while installing packages', err);
+            // console.log('Content packages installed:' + JSON.stringify(installed));
+            // Deploying worksaces
 
-          // restore working directory
-          try {
-            process.chdir(current);
-          } catch (err) {
-            exit('\nError while changing directory', err);
-          }
-
-          workspaces.deploy(
-            installed.map(({ name, content: { workspace } }) => ({ name, workspace })),
-            responses.repository,
-            (err, deployed) => {
-              if (err) exit('\nError while deploying workspaces', err);
-              debug('deployed', deployed);
-
-              console.log(
-                '\n' +
-                  chalk.grey('============================================================================') +
-                  '\n' +
-                  chalk.grey('===========                                                      ===========') +
-                  '\n' +
-                  chalk.grey('===========') +
-                  '   Initialisation complete.                           ' +
-                  chalk.grey('===========') +
-                  '\n' +
-                  chalk.grey('===========') +
-                  '   - use ' +
-                  chalk.yellow(settings.instance + ' start') +
-                  pad(' to open the ' + settings.description, ' ', 19 + (settings.instance + ' start').length) +
-                  chalk.grey('===========') +
-                  '\n' +
-                  chalk.grey('===========                                                      ===========') +
-                  '\n' +
-                  chalk.grey('============================================================================') +
-                  '\n'
-              );
-
-              // I'll want to save the location of the workspace to the content repo to allow
-              // launching `safetag start` from anywhere.
-
-              return;
+            // restore working directory
+            try {
+              process.chdir(current);
+              debug('changed directory: ', current);
+            } catch (err) {
+              exit('\nError while changing directory', err);
             }
-          );
-        });
+
+            workspaces.deploy(
+              installed.map(({ name, content: { workspace } }) => ({ name, workspace })),
+              responses.repository,
+              (err, deployed) => {
+                if (err) exit('\nError while deploying workspaces', err);
+                debug('deployed', deployed);
+
+                console.log(
+                  '\n' +
+                    chalk.grey('============================================================================') +
+                    '\n' +
+                    chalk.grey('===========                                                      ===========') +
+                    '\n' +
+                    chalk.grey('===========') +
+                    '   Initialisation complete.                           ' +
+                    chalk.grey('===========') +
+                    '\n' +
+                    chalk.grey('===========') +
+                    '   - use ' +
+                    chalk.yellow(settings.instance + ' start') +
+                    pad(' to open the ' + settings.description, ' ', 19 + (settings.instance + ' start').length) +
+                    chalk.grey('===========') +
+                    '\n' +
+                    chalk.grey('===========                                                      ===========') +
+                    '\n' +
+                    chalk.grey('============================================================================') +
+                    '\n'
+                );
+
+                // I'll want to save the location of the workspace to the content repo to allow
+                // launching `safetag start` from anywhere.
+
+                return;
+              }
+            );
+          }
+        );
       });
 
       //   - Use `safetag-toolkit` as its default init mode.
