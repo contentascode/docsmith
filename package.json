@@ -16,7 +16,8 @@
     "build": "babel --source-maps --ignore test src -d lib",
     "build:watch": "nodemon --watch src --exec npm run build",
     "pretest": "npm -s run build",
-    "test": "cucumberjs --fail-fast -- features"
+    "test": "cucumberjs --fail-fast -- features",
+    "postversion": "git push --follow-tags"
   },
   "repository": {
     "type": "git",
