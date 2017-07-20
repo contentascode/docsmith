@@ -24,7 +24,7 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
   const workspaces = workspace ? ['@safetag/' + workspace] : Object.keys(settings.config.workspace);
 
   const repository = path.join(process.env.HOME, '.content');
-  const base_toolkit = realPath(path.join(repository, 'node_modules', 'safetag-toolkit'));
+  const base_toolkit = realPath(path.join(repository, 'packages', 'safetag-toolkit'));
 
   console.log(
     '\n' +
