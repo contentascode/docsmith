@@ -15,7 +15,7 @@ const settings = require('./utils/settings');
 
 const pad = (string, char, length) => string + char.repeat(length - string.length);
 
-function start({ workspace, config, link = false, source, watch = false, dbg = false, baseurl }) {
+function start({ workspace, config, link = false, source, watch = false, dbg = false, baseurl, mapping }) {
   debug('link', link);
   debug('source', source);
   debug('baseurl', baseurl);
@@ -56,7 +56,8 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
         destination: path.join(repository, 'build', workspace),
         metadata: {
           ...config.workspace[workspace].metadata,
-          site: { baseurl }
+          site: { baseurl },
+          packages: { ...mapping }
         },
         plugins: watch
           ? [
