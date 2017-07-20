@@ -40,6 +40,7 @@ const install = function install({ repos, repository, link }, done) {
           }
 
           const exists = fs.pathExistsSync(path.join(repository, 'node_modules', name, './content.yml'));
+          debug('>> Checking content.yml in package at + ' path.join(repository, 'node_modules', name, './content.yml') + ':', exists);
           // Skip if there is no content.yml in the installed package
           if (!exists) return callback();
 
@@ -61,15 +62,19 @@ const install = function install({ repos, repository, link }, done) {
 
           fs.outputFileSync(path.join(repository, 'content.yml'), toYaml(new_root_content), 'utf8');
 
+          debug('>> Recursively install content packages:', content.packages)
           // recursively install content packages.
           install({ repos: content.packages, repository, link }, err => {
             if (err) return callback(err);
+            debug('>> Current pkg:', pkg)
+            debug('>> Returning pkg concatenated with:', { name, content })
             return callback(null, pkgs.concat({ name, content }));
           });
         });
       });
     },
     (err, results) => {
+      debug('results', results)
       if (err) return done(err);
       done(null, results);
     }
