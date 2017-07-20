@@ -9,13 +9,15 @@
   - Start editing content in the workspace
 
 
+## Atom
+
+pandoc conf in markdown enhanced preview `markdown_github+yaml_metadata_block+definition_lists+markdown_in_html_blocks+grid_tables`
 
 ## Syntax
 
 Refer to a Markdown manual for the basics of the syntax.
 
 There is some special syntax.
-
 
 ### Transclusion
 

@@ -8,10 +8,11 @@ const yaml = require('js-yaml').safeLoad;
 const chalk = require('chalk');
 require('longjohn');
 
-const packages = require('./packages');
-const workspaces = require('./workspaces');
+const settings = require('./utils/settings');
+const packages = require('./init/packages');
+const workspaces = require('./init/workspaces');
 
-const pad = (string, char, length) => string + char.repeat(length - string.length);
+const pad = (string, char, length) => (string + char.repeat(length)).slice(0, length);
 
 function init({ template, config, link, defaults }) {
   // Content as code CLI tool (i.e. not the bare `content` command)
@@ -36,7 +37,7 @@ function init({ template, config, link, defaults }) {
           '\n' +
           chalk.grey('===========') +
           '            ' +
-          pad(content.name + ' Initialisation', ' ', 42) +
+          pad((settings.description || settings.instance) + ' Initialisation', ' ', 42) +
           chalk.grey('===========') +
           '\n' +
           chalk.grey('===========                                                      ===========') +
@@ -119,13 +120,13 @@ function init({ template, config, link, defaults }) {
                   chalk.grey('===========                                                      ===========') +
                   '\n' +
                   chalk.grey('===========') +
-                  '        Initialisation complete.                      ' +
+                  '   Initialisation complete.                           ' +
                   chalk.grey('===========') +
                   '\n' +
                   chalk.grey('===========') +
-                  '         - use ' +
-                  chalk.yellow('safetag start') +
-                  ' to open the toolkit      ' +
+                  '   - use ' +
+                  chalk.yellow(settings.instance + ' start') +
+                  pad(' to open the ' + settings.description, ' ', 19 + (settings.instance + ' start').length) +
                   chalk.grey('===========') +
                   '\n' +
                   chalk.grey('===========                                                      ===========') +
@@ -172,8 +173,8 @@ const exit = (message, error) => {
           'Please alert the developer by submitting an issue \nat https://github.com/contentascode/safetag/issues and copy the whole output of the command above.\n\nApologies for the inconvenience!\n'
         )
     );
-    process.exit(0);
+    process.exit(1);
   }
 };
 
-module.exports.init = init;
+module.exports.run = init;

@@ -18,7 +18,7 @@ const id = x => x;
 const cp = require('child_process');
 const git = require('nodegit');
 
-const curSettings = settings.settings;
+const curSettings = settings.config;
 
 let component, gh_token;
 

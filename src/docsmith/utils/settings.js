@@ -10,7 +10,7 @@ const repository = p => path.join(process.env.HOME, '.content', p);
 // Resolve content config file
 const resolve = [local('content.yml'), local('_content.yml'), repository('content.yml')];
 debug('resolve', resolve);
-let settings;
+let config;
 
 try {
   // Get document, or throw exception on error
@@ -18,14 +18,15 @@ try {
 
   debug('resolve.map(fs.existsSync)', resolve.map(fs.existsSync));
   debug('config_path', config_path);
-  if (!config_path) {
-    console.log('Cannot find content as code configuration.');
-    console.log(
-      'Make sure to initialise your content repository or run this command from within a content as code project.'
-    );
+  if (config_path) {
+    config = yaml.safeLoad(fs.readFileSync(config_path, 'utf8'));
+    config.integration = config.integration || {};
+  } else {
+    debug('Cannot find content as code configuration.');
+    // console.log(
+    //   'Make sure to initialise your content repository or run this command from within a content as code project.'
+    // );
   }
-  settings = yaml.safeLoad(fs.readFileSync(config_path, 'utf8'));
-  settings.integration = settings.integration || {};
 } catch (e) {
   console.log(e);
   process.exit(1);
@@ -63,8 +64,12 @@ define('DEFAULT_TRAVIS', {
   validate: ['links']
 });
 
+// Brittle...
 const instance = path.basename(process.argv[1]).split('-')[0];
+const pkg_json = path.join(process.argv[1].split('/bin/')[0], 'lib/node_modules/', instance, 'package.json');
+const description = require(pkg_json).description;
 
 module.exports.instance = instance;
-module.exports.settings = settings;
+module.exports.description = description;
+module.exports.config = config;
 module.exports.save = settings_save;

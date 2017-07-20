@@ -1,123 +1,35 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --trace-warnings
 
 /**
  * Module dependencies.
  */
 
+const debug = require('debug')('docsmith:start');
 const program = require('commander');
-const settings = require('./docsmith/settings').settings;
-const spawn = require('child_process').spawn;
-const path = require('path');
-const fs = require('fs');
+const start = require('./docsmith/start');
+const config = require('./docsmith/utils/settings').config;
 
-const id = x => x;
-
-let component;
+let workspace;
 
 program
-  .description('Start preview and workspace')
-  .option('-s, --serve', 'Serves', id, true)
-  .option('-w, --watch', 'Serves and watches', id, true)
-  .option('-r, --reload', 'Live reload', id, true)
-  .option('-v, --validate', 'Validate links', id, true)
-  .option('-c, --config <config>', 'Specify configuration file')
-  .option('-d, --destination <directory>', 'Specify build destination')
-  .arguments('[component] [options]')
-  .action(function(comp) {
-    component = comp;
+  .arguments('[workspace]')
+  .option('-s, --source [path]', '[migrate] Source folder path]')
+  .option('-w, --watch', 'Watch content folder and serve on local server.')
+  .option('-d, --debug', 'Enable /debug-ui url for debugging pipeline.')
+  .option('-f, --force', 'Initialise whether the current directory is empty or not.')
+  .option('-l, --link', 'For development purposes. Link local packages.')
+  .action(function(wksp) {
+    workspace = wksp;
   })
   .parse(process.argv);
 
-if (component) console.log('Ignoring option component', component);
-console.log('settings', settings);
-process.exit(0);
+const { link, source, watch, debug: dbg } = program;
 
-let config;
-
-if (settings.generate.metalsmith) {
-  if (program.config && fileExists(path.join(process.cwd(), program.config))) {
-    config = require(path.join(process.cwd(), program.config));
-  } else if (fileExists(path.join(process.cwd(), 'metalsmith.json'))) {
-    config = require(path.join(process.cwd(), 'metalsmith.json'));
-  } else {
-    console.log('Could not find a metalsmith configuration file.');
-    process.exit(1);
-  }
-
-  if (program.destination) {
-    config.destination = program.destination;
-  }
-
-  //  var metalsmith = spawn('metalsmith', [''], { env: process.env, stdio: "inherit"});
-
-  // provide a formatting function for use in templates
-  config.metadata.formatDate = function(date, format) {
-    return require('moment')(date).format(format || 'MMMM Do, YYYY');
-  };
-  // only enable live-reloading when requested
-  if (program.serve || program.watch) {
-    const redirects = Object.assign(
-      {
-        '/': settings.publish.baseurl + '/'
-      },
-      settings.publish.redirects
-    );
-
-    config.plugins.push({
-      'metalsmith-serve': {
-        document_root: '_site',
-        redirects,
-        http_error_files: {
-          '404': settings.publish.baseurl + '/404.html'
-        }
-      }
-    });
-  }
-
-  if (program.watch) {
-    const watch = {
-      'metalsmith-watch': {
-        paths: {
-          '${source}/**/*.md': true,
-          '_layouts/**': '**/*.md',
-          '_includes/**': '**/*.md'
-        }
-      }
-    };
-    if (program.reload) {
-      watch['metalsmith-watch'].livereload = 35729;
-      config.metadata.customHTML = '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
-    }
-    config.plugins.push(watch);
-  }
-  // if (program.watch && program.reload) {
-  //   config.plugins.push( { 'metalsmith-watch' : { livereload: 35729 } } );
-  //   config.metadata.customHTML = '<script src="http://localhost:35729/livereload.js?snipver=1"></script>';
-  // }
-  if (program.validate) {
-    config.plugins.push({ 'metalsmith-broken-link-checker': true });
-  }
-  // config.plugins.find( x => { for (k in x) { return (k == 'metalsmith-ignore') } } )['metalsmith-ignore'].push("metalsmith.tmp.json");
-  // Swallow the --watch option
-  process.argv = [];
-
-  fs.writeFile('metalsmith.tmp.json', JSON.stringify(config, null, 2), 'utf8', function(err) {
-    if (err) {
-      console.log(err);
-      process.exit(1);
-    }
-    process.argv.push('/usr/local/bin/node', '/usr/local/bin/content-build', '--config', 'metalsmith.tmp.json');
-    require('metalsmith/bin/metalsmith');
-  });
-} else if (settings.generate.jekyll) {
-  config = program.config ? ['--config', program.config] : [];
-  spawn('bundle', ['exec', 'jekyll', 'build'].concat(config), { env: process.env, stdio: 'inherit' });
-}
-
-function fileExists(filePath) {
-  try {
-    return fs.statSync(filePath).isFile();
-  } catch (err) {
-    return false;
-  }
+// check if we could resolve the config.
+if (config) {
+  debug('config', config);
+  // called from a content as code instance, initialise from the instance configuration
+  start.run({ workspace, config, link, source, watch, dbg });
+} else {
+  console.warn('Couldnot find config. Aborting start. Please contact the developer');
 }

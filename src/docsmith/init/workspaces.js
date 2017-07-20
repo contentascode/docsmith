@@ -1,12 +1,13 @@
+const debug = require('debug')('docsmith:init');
 const async = require('async');
 const realPath = require('fs').realpathSync;
 const path = require('path');
-const metalsmith = require('./utils/metalsmith');
+const metalsmith = require('../utils/metalsmith');
 
 const deploy = function deploy(workspaces, repository, done) {
-  // console.log('workspaces', workspaces);
-  // console.log('repository', repository);
-  // console.log('pwd', process.cwd());
+  debug('workspaces', workspaces);
+  debug('repository', repository);
+  debug('pwd', process.cwd());
   async.reduce(
     workspaces,
     [],
@@ -29,7 +30,7 @@ const deploy = function deploy(workspaces, repository, done) {
               console.log('Error deploying', name);
               return cb(err);
             }
-            console.log('>> Finished deploying: ', name);
+            debug('>> Finished deploying: ', name);
 
             cb();
           });

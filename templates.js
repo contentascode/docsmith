@@ -5,7 +5,7 @@ const npm = require('npm');
 // var npmi = require('npmi');
 
 // TODO: Finalise making templates as packages
-const templates_path = path.join(path.dirname(fs.realpathSync(__filename)), '../../templates');
+const templates_path = path.join(path.dirname(fs.realpathSync(__filename)), './templates');
 
 function init(template = 'metalsmith') {
   // Built in templates

@@ -7,7 +7,7 @@
 const program = require('commander');
 const fs = require('extfs');
 const caller = require('./docsmith/utils/caller');
-const templates = require('./docsmith/templates');
+const templates = require('./docsmith/init/templates');
 const init = require('./docsmith/init');
 
 let template;
@@ -31,7 +31,7 @@ fs.isEmpty('.', function(empty) {
       templates.init(template);
     } else {
       // called from a content as code instance, initialise from the instance configuration
-      init.init({ template, config: caller.path(true), link: program.link, defaults: program.defaults });
+      init.run({ template, config: caller.path(true), link: program.link, defaults: program.defaults });
     }
   } else {
     console.warn('This directory is not empty. Aborting init. Use --force to ignore current content.');

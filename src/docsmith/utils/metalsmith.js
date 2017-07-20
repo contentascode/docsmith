@@ -3,38 +3,35 @@
 //  - support config file overrides.
 //  - process files to symlinks instead of building
 
-var chalk = require('chalk');
-var resolve = require('path').resolve;
-var exists = require('fs').existsSync;
-var read = require('fs').readFileSync;
-var resolve = require('path').resolve;
-var basename = require('path').basename;
-var extname = require('path').extname;
-var dirname = require('path').dirname;
-var format = require('path').format;
-var yaml = require('js-yaml').safeLoad;
-var async = require('async');
-var fs = require('co-fs-extra');
-var path = require('path');
+const debug = require('debug')('docsmith:metalsmith');
+const chalk = require('chalk');
+const resolve = require('path').resolve;
+const exists = require('fs').existsSync;
+const read = require('fs').readFileSync;
+const basename = require('path').basename;
+const extname = require('path').extname;
+const dirname = require('path').dirname;
+const format = require('path').format;
+const yaml = require('js-yaml').safeLoad;
+const async = require('async');
+const fs = require('co-fs-extra');
+const path = require('path');
 
-var absolute = require('absolute');
-var unyield = require('unyield');
-var Metalsmith = require('metalsmith');
+const absolute = require('absolute');
+const unyield = require('unyield');
+const Metalsmith = require('metalsmith');
+const debugui = require('metalsmith-debug-ui');
 
 // Pass config file path, config overrides and make async.
-module.exports = function(
-  config,
-  { source, destination, concurrency, metadata, clean, frontmatter, ignore },
-  callback
-) {
-  var name = basename(config, extname(config));
-  var dir = resolve(process.cwd(), dirname(config));
+module.exports = function(config, overrides, callback) {
+  const name = basename(config, extname(config));
+  const dir = resolve(process.cwd(), dirname(config));
 
-  var json;
+  let json;
 
   ['.json', '.yml', '.yaml'].forEach(function(ext) {
-    var conf = format({ root: '/', dir: dir, base: name + ext });
-    var path = resolve(dir, dirname(config), conf);
+    const conf = format({ root: '/', dir, base: name + ext });
+    const path = resolve(dir, dirname(config), conf);
 
     if (!exists(path) || json) return;
     try {
@@ -56,14 +53,35 @@ module.exports = function(
       )
     );
 
-  var metalsmith = new Metalsmith(dir);
-  if (source || json.source) metalsmith.source(source || json.source);
-  if (destination || json.destination) metalsmith.destination(destination || json.destination);
-  if (concurrency || json.concurrency) metalsmith.concurrency(concurrency || json.concurrency);
-  if (json.metadata) metalsmith.metadata(json.metadata);
-  if (json.clean != null) metalsmith.clean(json.clean);
-  if (json.frontmatter != null) metalsmith.frontmatter(json.frontmatter);
-  if (json.ignore != null) metalsmith.ignore(json.ignore);
+  const metalsmith = new Metalsmith(dir);
+
+  const {
+    source = json.source,
+    destination = json.destination,
+    concurrency = json.concurrency,
+    metadata = json.metadata,
+    clean = json.clean,
+    frontmatter = json.frontmatter,
+    ignore = json.ignore,
+    plugins = [],
+    dbg
+  } = overrides;
+
+  if (dbg) debugui.patch(metalsmith, { perf: true });
+
+  if (source) metalsmith.source(source);
+  if (destination) metalsmith.destination(destination);
+  if (concurrency) metalsmith.concurrency(concurrency);
+  if (metadata) metalsmith.metadata(json.metadata ? { ...metadata, ...json.metadata } : metadata);
+
+  if (clean !== undefined) metalsmith.clean(clean);
+  if (frontmatter !== undefined) metalsmith.frontmatter(frontmatter);
+  if (ignore !== undefined) metalsmith.ignore(ignore);
+
+  debug('json.plugins', json.plugins);
+  debug('plugins', plugins);
+  json.plugins = json.plugins.concat(plugins);
+  debug('normalize(json.plugins)', normalize(json.plugins));
 
   /**
    * Plugins.
@@ -72,13 +90,13 @@ module.exports = function(
   async.eachSeries(
     normalize(json.plugins),
     function(plugin, cb) {
-      for (var name in plugin) {
-        var opts = plugin[name];
-        var mod;
+      for (const name in plugin) {
+        const opts = plugin[name];
+        let mod;
 
         try {
-          var local = resolve(dir, name);
-          var npm = resolve(dir, 'node_modules', name);
+          const local = resolve(dir, name);
+          const npm = resolve(dir, 'node_modules', name);
           if (exists(local) || exists(local + '.js')) {
             mod = require(local);
           } else if (exists(npm)) {
@@ -92,6 +110,7 @@ module.exports = function(
 
         try {
           metalsmith.use(mod(opts));
+          cb();
         } catch (e) {
           return cb(fatal('error using plugin "' + name + '"...', e.message + '\n\n' + e.stack));
         }
@@ -103,29 +122,29 @@ module.exports = function(
   );
 
   /**
-   * Monkey patch to create symlinked build.
+   * TODO: Monkey patch to create symlinked build?
    */
 
-  metalsmith.writeFile = unyield(function*(file, data) {
-    var dest = this.destination();
-    if (!absolute(file)) file = path.resolve(dest, file);
-
-    try {
-      yield fs.outputFile(file, data.contents);
-      if (data.mode) yield fs.chmod(file, data.mode);
-    } catch (e) {
-      e.message = 'Failed to write the file at: ' + file + '\n\n' + e.message;
-      throw e;
-    }
-  });
+  // metalsmith.writeFile = unyield(function*(file, data) {
+  //   const dest = this.destination();
+  //   if (!absolute(file)) file = path.resolve(dest, file);
+  //
+  //   try {
+  //     yield fs.outputFile(file, data.contents);
+  //     if (data.mode) yield fs.chmod(file, data.mode);
+  //   } catch (e) {
+  //     e.message = 'Failed to write the file at: ' + file + '\n\n' + e.message;
+  //     throw e;
+  //   }
+  // });
 
   /**
    * Build.
    */
 
-  metalsmith.build(function(err, files) {
+  metalsmith.build(function(err) {
     if (err) return callback(fatal(err.message, err));
-    log('successfully processed files.');
+    log('successfully built files.');
 
     callback();
   });
@@ -169,10 +188,10 @@ module.exports = function(
 
   function normalize(obj) {
     if (obj instanceof Array) return obj;
-    var ret = [];
+    const ret = [];
 
-    for (var key in obj) {
-      var plugin = {};
+    for (const key in obj) {
+      const plugin = {};
       plugin[key] = obj[key];
       ret.push(plugin);
     }

@@ -45,8 +45,9 @@
     "lodash": "^4.17.4",
     "longjohn": "^0.2.12",
     "metalsmith": "contentascode/metalsmith",
+    "metalsmith-debug-ui": "^0.1.1",
     "nodegit": "0.18.2",
-    "npm": "^5.0.4",
+    "npm": "^5.3.0",
     "promzard": "^0.3.0",
     "supi": "^0.1.2",
     "tmp": "0.0.31"
@@ -54,6 +55,7 @@
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-eslint": "^7.2.3",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "cucumber": "^0.9.5",
     "eslint": "^4.1.1",

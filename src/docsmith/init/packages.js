@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const npm = require('npm');
 const async = require('async');
 const yaml = require('js-yaml').safeLoad;
+const toYaml = require('js-yaml').safeDump;
 const read = require('fs').readFileSync;
 const path = require('path');
 
@@ -16,6 +17,7 @@ const install = function install({ repos, repository, link }, done) {
       if (link) {
         debug('>> Linking content package: ' + name);
       } else {
+        console.log('Installing', repo);
         debug('>> Installing content package: ' + repo);
       }
 
@@ -25,7 +27,7 @@ const install = function install({ repos, repository, link }, done) {
       // npm.prefix
       // link therefore needs both to be set but setting prefix manually overrides both...
 
-      npm.load({ save: false, progress: false }, function(err) {
+      npm.load({ save: false, progress: false, loglevel: process.env.DEBUG ? 'info' : 'silent' }, function(err) {
         if (err) return err;
         npm.commands[link ? 'link' : 'install']([link ? name : repo], function(err) {
           if (err && err.code === 'E404') {
@@ -43,6 +45,21 @@ const install = function install({ repos, repository, link }, done) {
 
           // Otherwise gather the content of the content.yml.
           const content = yaml(read(path.join(repository, 'node_modules', name, './content.yml'), 'utf8'));
+
+          // copy the content.yml to the root of the content repo.
+          const exists_root_content = fs.pathExistsSync(path.join(repository, 'content.yml'));
+
+          let new_root_content;
+
+          if (exists_root_content) {
+            const root_content = yaml(read(path.join(repository, 'content.yml'), 'utf8'));
+            new_root_content = Object(root_content, content);
+            // TODO: merge in a smart way
+          } else {
+            new_root_content = content;
+          }
+
+          fs.outputFileSync(path.join(repository, 'content.yml'), toYaml(new_root_content), 'utf8');
 
           // recursively install content packages.
           install({ repos: content.packages, repository, link }, err => {

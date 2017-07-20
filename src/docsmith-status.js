@@ -5,7 +5,7 @@
  */
 
 const program = require('commander');
-const curSettings = require('./docsmith/settings').settings;
+const config = require('./docsmith/settings').config;
 const yaml = require('js-yaml');
 
 let component, plugin;
@@ -21,6 +21,6 @@ program
 if (component) console.log('Ignoring option component', component);
 if (plugin) console.log('Ignoring option plugin', plugin);
 
-console.log('Current Content as Code settings:');
+console.log('Current Content as Code configuration:');
 console.log('');
-console.log(yaml.safeDump(curSettings));
+console.log(yaml.safeDump(config));
