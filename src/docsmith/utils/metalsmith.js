@@ -96,14 +96,13 @@ module.exports = function(config, overrides, callback) {
         try {
           const local = resolve(dir, name);
           const npm = resolve(dir, 'node_modules', name);
+          debug('resolving npm package with :', path.join(dir, 'node_modules', name))
+          debug('ls ' + dir, fs.readdirSync(dir).join('\n'))
           if (exists(local) || exists(local + '.js')) {
-            debug('resolving local package:', local)
             mod = require(local);
           } else if (exists(npm)) {
-            debug('resolving npm package:', npm)
             mod = require(npm);
           } else {
-            debug('resolving package by name:', name)
             mod = require(name);
           }
         } catch (e) {
