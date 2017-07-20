@@ -14,6 +14,7 @@ let workspace;
 program
   .arguments('[workspace]')
   .option('-s, --source [path]', '[migrate] Source folder path]')
+  .option('--baseurl [baseurl]', 'Set site.baseurl metadata value.')
   .option('-w, --watch', 'Watch content folder and serve on local server.')
   .option('-d, --debug', 'Enable /debug-ui url for debugging pipeline.')
   .option('-f, --force', 'Initialise whether the current directory is empty or not.')
@@ -23,13 +24,13 @@ program
   })
   .parse(process.argv);
 
-const { link, source, watch, debug: dbg } = program;
+const { link, source, baseurl, watch, debug: dbg } = program;
 
 // check if we could resolve the config.
 if (config) {
   debug('config', config);
   // called from a content as code instance, initialise from the instance configuration
-  start.run({ workspace, config, link, source, watch, dbg });
+  start.run({ workspace, config, link, source, watch, dbg, baseurl });
 } else {
-  console.warn('Couldnot find config. Aborting start. Please contact the developer');
+  console.warn('Could not find config. Aborting start. Please contact the developer');
 }

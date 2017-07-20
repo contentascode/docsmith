@@ -104,9 +104,8 @@ function init({ template, config, link, defaults, verbose }) {
             workspaces.deploy(
               installed.map(({ name, content: { workspace } }) => ({ name, workspace })),
               responses.repository,
-              (err, deployed) => {
+              err => {
                 if (err) exit('\nError while deploying workspaces', err);
-                debug('deployed', deployed);
 
                 console.log(
                   '\n' +

@@ -16,6 +16,7 @@ const yaml = require('js-yaml').safeLoad;
 const async = require('async');
 const fs = require('co-fs-extra');
 const path = require('path');
+const _ = require('lodash');
 
 const absolute = require('absolute');
 const unyield = require('unyield');
@@ -74,7 +75,7 @@ module.exports = function(config, overrides, callback) {
   if (source) metalsmith.source(source);
   if (destination) metalsmith.destination(destination);
   if (concurrency) metalsmith.concurrency(concurrency);
-  if (metadata) metalsmith.metadata(json.metadata ? { ...metadata, ...json.metadata } : metadata);
+  if (metadata) metalsmith.metadata(json.metadata ? _.merge(json.metadata, metadata) : metadata);
 
   if (clean !== undefined) metalsmith.clean(clean);
   if (frontmatter !== undefined) metalsmith.frontmatter(frontmatter);

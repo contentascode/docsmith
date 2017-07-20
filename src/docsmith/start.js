@@ -15,9 +15,10 @@ const settings = require('./utils/settings');
 
 const pad = (string, char, length) => string + char.repeat(length - string.length);
 
-function start({ workspace, config, link = false, source, watch = false, dbg = false }) {
+function start({ workspace, config, link = false, source, watch = false, dbg = false, baseurl }) {
   debug('link', link);
   debug('source', source);
+  debug('baseurl', baseurl);
   debug('settings.config', settings.config);
 
   // TODO: hardwired for now.
@@ -53,7 +54,10 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
         ...(source ? { source } : null),
         dbg,
         destination: path.join(repository, 'build', workspace),
-        metadata: config.workspace[workspace].metadata,
+        metadata: {
+          ...config.workspace[workspace].metadata,
+          site: { baseurl }
+        },
         plugins: watch
           ? [
               {
