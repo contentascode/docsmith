@@ -68,6 +68,7 @@ const install = function install({ repos, repository, link }, done) {
             if (err) return callback(err);
             debug('>> Current pkgs:', pkgs)
             debug('>> Returning pkg concatenated with:', { name, content })
+            // This should accumulate content packages dependencies in a flat structure.
             return callback(null, pkgs.concat({ name, content }));
           });
         });

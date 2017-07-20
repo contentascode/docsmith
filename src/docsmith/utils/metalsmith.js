@@ -81,7 +81,6 @@ module.exports = function(config, overrides, callback) {
   debug('json.plugins', json.plugins);
   debug('plugins', plugins);
   json.plugins = json.plugins.concat(plugins);
-  debug('normalize(json.plugins)', normalize(json.plugins));
 
   /**
    * Plugins.
@@ -98,10 +97,13 @@ module.exports = function(config, overrides, callback) {
           const local = resolve(dir, name);
           const npm = resolve(dir, 'node_modules', name);
           if (exists(local) || exists(local + '.js')) {
+            debug('resolving local package:', local)
             mod = require(local);
           } else if (exists(npm)) {
+            debug('resolving npm package:', npm)
             mod = require(npm);
           } else {
+            debug('resolving package by name:', name)
             mod = require(name);
           }
         } catch (e) {
