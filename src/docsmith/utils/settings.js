@@ -7,6 +7,8 @@ const id = x => x;
 const local = p => path.join(process.cwd(), p);
 const repository = p => path.join(process.env.HOME, '.content', p);
 
+debug('trace')
+console.trace()
 // Resolve content config file
 const resolve = [local('content.yml'), local('_content.yml'), repository('content.yml')];
 debug('resolve', resolve);
