@@ -19,6 +19,7 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
   debug('link', link);
   debug('source', source);
   debug('baseurl', baseurl);
+  debug('dbg', dbg);
   debug('settings.config', settings.config);
 
   // TODO: hardwired for now.

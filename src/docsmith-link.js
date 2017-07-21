@@ -62,7 +62,7 @@ if (program.unlink) {
         }
         fs.ensureSymlinkSync(fs.realpathSync(from), to);
         console.log(
-          'Linked package ' + from + ' to ' + to + 'and saved original folder: ' + path.basename(to) + '.orig'
+          'Linked package ' + from + ' to ' + to + ' and saved original folder: ' + path.basename(to) + '.orig'
         );
       } else {
         fs.ensureSymlinkSync(fs.realpathSync(from), to);
