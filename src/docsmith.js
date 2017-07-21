@@ -15,6 +15,7 @@ process.once('SIGINT', function() {
 
 program
   .command('init [template]', 'initialise the current folder with the default or specified template')
+  .command('link [mappings]', 'link content packages')
   .command('start', 'build, serve and watch content for changes')
   .command(
     'install [component] [plugin]',

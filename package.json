@@ -6,6 +6,7 @@
   "bin": {
     "content": "lib/docsmith.js",
     "content-init": "lib/docsmith-init.js",
+    "content-link": "lib/docsmith-link.js",
     "content-install": "lib/docsmith-install.js",
     "content-status": "lib/docsmith-status.js",
     "content-build": "lib/docsmith-build.js",

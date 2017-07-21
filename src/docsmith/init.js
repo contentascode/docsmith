@@ -101,40 +101,71 @@ function init({ template, config, link, defaults, verbose }) {
               exit('\nError while changing directory', err);
             }
 
-            workspaces.deploy(
-              installed.map(({ name, content: { workspace } }) => ({ name, workspace })),
-              responses.repository,
-              err => {
-                if (err) exit('\nError while deploying workspaces', err);
+            // Deploy symlinks.
+            installed.forEach(({ name, content: { workspace } }) => {
+              Object.keys(workspace)
+                .reduce(
+                  (acc, workspace) => (acc.includes(workspace.split('/')[0]) ? acc : [...acc, workspace.split('/')[0]]),
+                  []
+                )
+                .forEach(group => {
+                  try {
+                    fs.ensureSymlinkSync(
+                      path.join(responses.repository, 'packages', name, 'content'),
+                      path.join(current, group)
+                    );
+                    console.log(
+                      'Symlinked',
+                      path.join(responses.repository, 'packages', name, 'content') + ' to ' + path.join(current, group)
+                    );
+                  } catch (e) {
+                    exit(
+                      '\nError while creating synlink from ' +
+                        path.join(responses.repository, 'packages', name, 'content') +
+                        ' to ' +
+                        path.join(current, group),
+                      e
+                    );
+                  }
+                });
+            });
 
-                console.log(
-                  '\n' +
-                    chalk.grey('============================================================================') +
-                    '\n' +
-                    chalk.grey('===========                                                      ===========') +
-                    '\n' +
-                    chalk.grey('===========') +
-                    '   Initialisation complete.                           ' +
-                    chalk.grey('===========') +
-                    '\n' +
-                    chalk.grey('===========') +
-                    '   - use ' +
-                    chalk.yellow(settings.instance + ' start') +
-                    pad(' to open the ' + settings.description, ' ', 19 + (settings.instance + ' start').length) +
-                    chalk.grey('===========') +
-                    '\n' +
-                    chalk.grey('===========                                                      ===========') +
-                    '\n' +
-                    chalk.grey('============================================================================') +
-                    '\n'
-                );
-
-                // I'll want to save the location of the workspace to the content repo to allow
-                // launching `safetag start` from anywhere.
-
-                return;
-              }
-            );
+            // For now, do not deploy the init workspace until the workspace approach is fleshed out.
+            //
+            // workspaces.deploy(
+            //   installed.map(({ name, content: { workspace } }) => ({ name, workspace })),
+            //   responses.repository,
+            //   err => {
+            //     if (err) exit('\nError while deploying workspaces', err);
+            //
+            //     console.log(
+            //       '\n' +
+            //         chalk.grey('============================================================================') +
+            //         '\n' +
+            //         chalk.grey('===========                                                      ===========') +
+            //         '\n' +
+            //         chalk.grey('===========') +
+            //         '   Initialisation complete.                           ' +
+            //         chalk.grey('===========') +
+            //         '\n' +
+            //         chalk.grey('===========') +
+            //         '   - use ' +
+            //         chalk.yellow(settings.instance + ' start') +
+            //         pad(' to open the ' + settings.description, ' ', 19 + (settings.instance + ' start').length) +
+            //         chalk.grey('===========') +
+            //         '\n' +
+            //         chalk.grey('===========                                                      ===========') +
+            //         '\n' +
+            //         chalk.grey('============================================================================') +
+            //         '\n'
+            //     );
+            //
+            //     // I'll want to save the location of the workspace to the content repo to allow
+            //     // launching `safetag start` from anywhere.
+            //
+            //     return;
+            //   }
+            // );
           }
         );
       });
