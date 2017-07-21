@@ -49,7 +49,7 @@ if (program.unlink) {
   mappings.forEach(([to, from]) => {
     try {
       const exists = fs.existsSync(to);
-      const symlink = fs.lstatSync(to).isSymbolicLink();
+      const symlink = exists && fs.lstatSync(to).isSymbolicLink();
 
       if (exists && !program.force) {
         console.log('Skipping as ' + to + ' folder already exists. Use --force to replace folder.');
