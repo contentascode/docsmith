@@ -16,7 +16,7 @@ const install = function install({ packages, repository, link, verbose }, done) 
     Object.keys(packages).map(name => ({ name, pkg: packages[name] })),
     [],
     (pkgs, { name, pkg }, callback) => {
-      fs.existsSync(name) || fs.mkdirSync(name);
+      fs.existsSync(name) || fs.ensureDirSync(name);
       try {
         process.chdir(name);
         debug('changed directory: ', name);
