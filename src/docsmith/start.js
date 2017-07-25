@@ -7,6 +7,7 @@ const path = require('path');
 // const yaml = require('js-yaml').safeLoad;
 const fork = require('child_process').fork;
 const chalk = require('chalk');
+const os = require('os');
 require('longjohn');
 
 const metalsmith = require('./utils/metalsmith');
@@ -73,7 +74,7 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
               },
               {
                 'metalsmith-serve': {
-                  document_root: '/Users/jun/.content/build',
+                  document_root: path.join(os.homedir(), '.content/build'),
                   port: 8081 + idx,
                   verbose: true,
                   // http_error_files: {
