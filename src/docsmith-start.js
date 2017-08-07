@@ -15,16 +15,19 @@ program
   .arguments('[workspace]')
   .option('-s, --source [path]', '[migrate] Source folder path]')
   .option('--baseurl [baseurl]', 'Set site.baseurl metadata value.')
-  .option('-w, --watch', 'Watch content folder and serve on local server.')
+  .option('-n, --no-watch', 'Do not watch content folder and serve on local server. Watches by default.')
   .option('-d, --debug', 'Enable /debug-ui url for debugging pipeline.')
   .option('-f, --force', 'Initialise whether the current directory is empty or not.')
   .option('-l, --link', 'For development purposes. Link local packages.')
   .action(function(wksp) {
     workspace = wksp;
-  })
-  .parse(process.argv);
+  });
+
+program.parse(process.argv);
 
 const { link, source, baseurl, watch, debug: dbg } = program;
+
+if (typeof workspace === 'undefined') workspace = 'toolkit';
 
 // check if we could resolve the config.
 if (config) {
