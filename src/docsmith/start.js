@@ -8,7 +8,7 @@ const path = require('path');
 const fork = require('child_process').fork;
 const chalk = require('chalk');
 const os = require('os');
-require('longjohn');
+// require('longjohn');
 
 const metalsmith = require('./utils/metalsmith');
 
