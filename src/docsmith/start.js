@@ -46,7 +46,9 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
 
   workspaces.forEach(function(workspace, idx) {
     console.log('>> Starting workspace: ', path.join(base_toolkit, config.workspace[workspace].start));
-
+    console.log(
+      '>> Please wait about 5 seconds while the website is built and you see the message "successfully built files."'
+    );
     //TODO: Make watch more targeted.
     //TODO: Maybe factor out webserver.
 
@@ -76,7 +78,7 @@ function start({ workspace, config, link = false, source, watch = false, dbg = f
                 'metalsmith-serve': {
                   document_root: path.join(os.homedir(), '.content/build'),
                   port: 8081 + idx,
-                  verbose: true,
+                  verbose: false,
                   // http_error_files: {
                   //   '404': '/404.html'
                   // },
