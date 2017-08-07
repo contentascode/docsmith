@@ -14,12 +14,12 @@ const dirname = require('path').dirname;
 const format = require('path').format;
 const yaml = require('js-yaml').safeLoad;
 const async = require('async');
-const fs = require('co-fs-extra');
+// const fs = require('co-fs-extra');
 const path = require('path');
 const _ = require('lodash');
 
-const absolute = require('absolute');
-const unyield = require('unyield');
+// const absolute = require('absolute');
+// const unyield = require('unyield');
 const Metalsmith = require('metalsmith');
 const debugui = require('metalsmith-debug-ui');
 
