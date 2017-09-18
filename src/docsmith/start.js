@@ -72,7 +72,7 @@ function start({ workspace, config, link = false, source, watch = false, clean =
                   paths: {
                     '${source}/**/*': '**/*.md',
                     'code/assets/**/*': '**/*.md',
-                    'code/templates/**/*': '**/*.md'
+                    'code/templates/*.pug': '**/*'
                   }
                 }
               },
