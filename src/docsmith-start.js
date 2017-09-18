@@ -17,7 +17,7 @@ program
   .option('--baseurl [baseurl]', 'Set site.baseurl metadata value.')
   .option('-n, --no-watch', 'Do not watch content folder and serve on local server. Watches by default.')
   .option('-d, --debug', 'Enable /debug-ui url for debugging pipeline.')
-  .option('-f, --force', 'Initialise whether the current directory is empty or not.')
+  .option('-c, --clean', 'Cleanup build directory before build.')
   .option('-l, --link', 'For development purposes. Link local packages.')
   .action(function(wksp) {
     workspace = wksp;
@@ -25,7 +25,7 @@ program
 
 program.parse(process.argv);
 
-const { link, source, baseurl, watch, debug: dbg } = program;
+const { link, source, baseurl, watch, clean, debug: dbg } = program;
 
 if (typeof workspace === 'undefined') workspace = 'toolkit';
 
@@ -33,7 +33,7 @@ if (typeof workspace === 'undefined') workspace = 'toolkit';
 if (config) {
   debug('config', config);
   // called from a content as code instance, initialise from the instance configuration
-  start.run({ workspace, config, link, source, watch, dbg, baseurl });
+  start.run({ workspace, config, link, source, watch, clean, dbg, baseurl });
 } else {
   console.warn('Could not find config. Aborting start. Please contact the developer');
 }
