@@ -1,6 +1,6 @@
 {
   "name": "docsmith",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "Content as Code aims to make it easy to start a website in just a few steps but also build complex content publishing pipelines. It develops best practices to managing content workflows inspired from how code is managed in large collaborative software engineering projects. **Docsmith** implements the [Content as Code](https://contentascode.io) framework using metal*smith*, pan*doc* and *doc*ker microservice deployment.",
   "main": "docsmith.js",
   "bin": {
@@ -28,7 +28,11 @@
     "type": "git",
     "url": "git+https://github.com/contentascode/docsmith.git"
   },
-  "keywords": ["content", "management", "documentation"],
+  "keywords": [
+    "content",
+    "management",
+    "documentation"
+  ],
   "author": "Jun Matsushita (https://iilab.org)",
   "license": "AGPL-3.0",
   "bugs": {
