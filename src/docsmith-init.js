@@ -17,7 +17,7 @@ program
   .option('-f, --force', 'Initialise whether the current directory is empty or not.')
   .option('--defaults', 'Accepts defaults prompts and skips confirmation.')
   .option('-l, --link', 'For development purposes. Link local packages.')
-  .option('--verbose', 'Display npm log.')
+  .option('--debug', 'Display npm log.')
   .action(function(templ) {
     template = templ;
   })
@@ -37,7 +37,7 @@ fs.isEmpty('.', function(empty) {
         config: caller.path(true),
         link: program.link,
         defaults: program.defaults,
-        verbose: program.verbose
+        verbose: program.debug
       });
     }
   } else {
