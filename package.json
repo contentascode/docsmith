@@ -18,8 +18,8 @@
     "build:watch": "nodemon --watch src --exec npm run build",
     "pretest": "npm -s run build",
     "test": "cucumberjs --fail-fast -- features",
-    "prepublish": "npm -s run build",
-    "postversion": "git push --follow-tags"
+    "postversion": "git push --follow-tags",
+    "prepublishOnly": "npm -s run build"
   },
   "repository": {
     "type": "git",
