@@ -21,15 +21,14 @@
     "postversion": "git push --follow-tags",
     "prepublishOnly": "npm -s run build"
   },
+  "directories": {
+    "lib": "./lib"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/contentascode/docsmith.git"
   },
-  "keywords": [
-    "content",
-    "management",
-    "documentation"
-  ],
+  "keywords": ["content", "management", "documentation"],
   "author": "Jun Matsushita (https://iilab.org)",
   "license": "AGPL-3.0",
   "bugs": {
