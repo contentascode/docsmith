@@ -18,6 +18,7 @@ program
   .arguments('[mappings...]', 'Enables package:path mapping')
   .option('-u, --unlink', 'Remove symlinks and restore original state if pointing to actual folder.')
   .option('-f, --force', 'Link whether the package path is empty or not.')
+  .option('-F, --force-remove', 'Link whether the package path is empty or not and do not backup')
   .action(function(maps) {
     mappings = maps.map(mp => mp.split(':').map(m => m.replace('~/', os.homedir() + '/')));
   })
@@ -51,18 +52,26 @@ if (program.unlink) {
       const exists = fs.existsSync(to);
       const symlink = exists && fs.lstatSync(to).isSymbolicLink();
 
-      if (exists && !program.force) {
+      if (exists && !(program.force || program.forceRemove)) {
         console.log('Skipping as ' + to + ' folder already exists. Use --force to replace folder.');
-      } else if (exists && !symlink && program.force) {
+      } else if (exists && !symlink && (program.force || program.forceRemove)) {
         try {
-          fs.moveSync(to, path.join(path.dirname(to), path.basename(to) + '.orig'));
+          program.forceRemove
+            ? fs.removeSync(to)
+            : fs.moveSync(to, path.join(path.dirname(to), path.basename(to) + '.orig'));
         } catch (e) {
           if (e.code === 'EEXIST') console.log('Package already linked ' + from + ' to ' + to + ' use unlink first.');
           else throw e;
         }
         fs.ensureSymlinkSync(fs.realpathSync(from), to);
         console.log(
-          'Linked package ' + from + ' to ' + to + ' and saved original folder: ' + path.basename(to) + '.orig'
+          'Linked package ' +
+            from +
+            ' to ' +
+            to +
+            (program.forceRemove
+              ? ''
+              : ' and saved original folder: ' + path.basename(to) + '.orig (use --unlink to restore)')
         );
       } else {
         fs.ensureSymlinkSync(fs.realpathSync(from), to);
