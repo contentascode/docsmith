@@ -62,7 +62,8 @@ function start({ workspace, config, link = false, source, watch = false, clean =
         destination: path.join(repository, 'build', workspace),
         metadata: {
           ...config.workspace[workspace].metadata,
-          site: { baseurl }
+          site: { baseurl },
+          watch
         },
         plugins: watch
           ? [
