@@ -26,7 +26,6 @@ program
 
 program.parse(process.argv);
 
-if (typeof workspace === 'undefined') workspace = 'toolkit';
 const { link, source, baseurl, watch, clean, debug: dbg, warning } = program;
 
 // check if we could resolve the config.

@@ -5,7 +5,7 @@ const realPath = require('fs').realpathSync;
 const path = require('path');
 // var npmi = require('npmi');
 // const yaml = require('js-yaml').safeLoad;
-const fork = require('child_process').fork;
+// const fork = require('child_process').fork;
 const chalk = require('chalk');
 const os = require('os');
 // require('longjohn');
@@ -16,7 +16,18 @@ const settings = require('./utils/settings');
 
 const pad = (string, char, length) => string + char.repeat(length - string.length);
 
-function start({ workspace, config, link = false, source, watch = false, clean = false, dbg = false, baseurl }) {
+function start({
+  workspace,
+  config,
+  link = false,
+  source,
+  watch = false,
+  clean = false,
+  dbg = false,
+  warning = false,
+  baseurl,
+  run = false
+}) {
   debug('link', link);
   debug('source', source);
   debug('baseurl', baseurl);
@@ -25,7 +36,11 @@ function start({ workspace, config, link = false, source, watch = false, clean =
   debug('settings.config', settings.config);
 
   // TODO: hardwired for now.
-  const workspaces = workspace ? ['@safetag/' + workspace] : Object.keys(settings.config.workspace);
+  const workspaces = workspace
+    ? ['@safetag/' + workspace]
+    : Object.keys(settings.config.workspace).filter(k => settings.config.workspace[k][`${run ? 'run' : 'start'}`]);
+
+  // console.log('workspaces', workspaces);
 
   const repository = path.join(process.env.HOME, '.content');
   const base_toolkit = realPath(path.join(repository, 'packages', 'safetag-toolkit'));
@@ -63,7 +78,8 @@ function start({ workspace, config, link = false, source, watch = false, clean =
         metadata: {
           ...config.workspace[workspace].metadata,
           site: { baseurl },
-          watch
+          watch,
+          warning: !!warning
         },
         plugins: watch
           ? [
