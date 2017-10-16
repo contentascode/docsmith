@@ -10,7 +10,8 @@
     "content-install": "lib/docsmith-install.js",
     "content-status": "lib/docsmith-status.js",
     "content-build": "lib/docsmith-build.js",
-    "content-start": "lib/docsmith-start.js"
+    "content-start": "lib/docsmith-start.js",
+    "content-pkgpath": "./package.json"
   },
   "scripts": {
     "lint": "eslint src/*.js",
