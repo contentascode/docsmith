@@ -67,7 +67,10 @@ define('DEFAULT_TRAVIS', {
 // Brittle...
 const instance = path.basename(process.argv[1]).split('-')[0];
 debug('instance', instance);
-const pkg_json = path.join(process.argv[1].split('/bin/')[0], 'lib/node_modules/', instance, 'package.json');
+const pkg_path = fs.readlinkSync(`${process.argv[1].split('-')[0]}-pkgpath`);
+debug('pkg_path', pkg_path);
+
+const pkg_json = path.join(process.argv[1].split('/bin/')[0], '/bin/', pkg_path);
 debug('pkg_json', pkg_json);
 const description = require(pkg_json).description;
 
