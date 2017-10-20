@@ -38,12 +38,16 @@ function start({
   // TODO: hardwired for now.
   const workspaces = workspace
     ? ['@safetag/' + workspace]
-    : Object.keys(settings.config.workspace).filter(k => settings.config.workspace[k][`${run ? 'run' : 'start'}`]);
+    : Object.keys(settings.config.workspace).filter(
+        k => k.startsWith('@' + settings.instance) && settings.config.workspace[k][`${run ? 'run' : 'start'}`]
+      );
 
   // console.log('workspaces', workspaces);
 
   const repository = path.join(process.env.HOME, '.content');
-  const base_toolkit = realPath(path.join(repository, 'packages', 'safetag-toolkit'));
+
+  // For now, only one content package per CLI client.
+  const base_toolkit = realPath(path.join(repository, 'packages', settings.config.packages[settings.instance]));
 
   console.log(
     '\n' +

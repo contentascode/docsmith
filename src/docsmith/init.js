@@ -10,7 +10,7 @@ require('longjohn');
 
 const settings = require('./utils/settings');
 const packages = require('./init/packages');
-const workspaces = require('./init/workspaces');
+// const workspaces = require('./init/workspaces');
 
 const pad = (string, char, length) => (string + char.repeat(length)).slice(0, length);
 

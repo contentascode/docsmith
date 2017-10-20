@@ -75,6 +75,8 @@ debug('pkg_json', pkg_json);
 const description = require(pkg_json).description;
 
 module.exports.instance = instance;
+module.exports.package = pkg_path.replace('../lib/node_modules/', '').replace('/package.json', '');
 module.exports.description = description;
 module.exports.config = config;
+module.exports.pkg_path = pkg_path;
 module.exports.save = settings_save;

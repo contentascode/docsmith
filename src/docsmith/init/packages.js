@@ -79,6 +79,7 @@ const install = function install({ packages, repository, link, verbose }, done) 
             const root_content = yaml(read(path.join(repository, 'content.yml'), 'utf8'));
             new_root_content = Object(root_content, content);
             // TODO: merge in a smart way
+            // Add instance key with content package folder path. Think about multi-content package instances.
           } else {
             new_root_content = content;
           }

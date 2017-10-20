@@ -5,12 +5,10 @@
  */
 
 const program = require('commander');
-const fs = require('fs');
+const fs = require('extfs');
 const caller = require('./docsmith/utils/caller');
 const templates = require('./docsmith/init/templates');
 const init = require('./docsmith/init');
-const update = require('./docsmith/update');
-const settings = require('./docsmith/utils/settings');
 
 let template;
 
@@ -19,22 +17,19 @@ program
   .option('-f, --force', 'Initialise whether the current directory is empty or not.')
   .option('--defaults', 'Accepts defaults prompts and skips confirmation.')
   .option('-l, --link', 'For development purposes. Link local packages.')
-  .option('--debug', 'Display npm log.')
+  .option('--verbose', 'Display npm log.')
   .action(function(templ) {
     template = templ;
   })
   .parse(process.argv);
 
-// ~~check if this is an empty folder.~~
-// Check if the folder contains a folder for this instance.
-// Also check if that instance is git initialise, and if not upgrade it.
+// check if this is an empty folder.
 
-fs.readlink(`./@${settings.instance}`, function(err, link) {
-  if ((err && err.code === 'ENOENT') || program.force) {
+fs.isEmpty('.', function(empty) {
+  if (empty || program.force) {
     if (caller.original()) {
-      console.error('WARNING: Careful this probably does not work. Use --force to ignore this warning.');
       // initialises from a built-in template
-      if (program.force) templates.init(template);
+      templates.init(template);
     } else {
       // called from a content as code instance, initialise from the instance configuration
       init.run({
@@ -42,17 +37,10 @@ fs.readlink(`./@${settings.instance}`, function(err, link) {
         config: caller.path(true),
         link: program.link,
         defaults: program.defaults,
-        verbose: program.debug
+        verbose: program.verbose
       });
     }
   } else {
-    console.warn('Workspace already initialised. Attempting to update. Use --force to ignore current content.');
-    update.run({
-      template,
-      config: caller.path(true),
-      link: program.link,
-      defaults: program.defaults,
-      verbose: program.debug
-    });
+    console.warn('This directory is not empty. Aborting init. Use --force to ignore current content.');
   }
 });

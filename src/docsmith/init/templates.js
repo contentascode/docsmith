@@ -24,7 +24,6 @@ function init(template = 'metalsmith') {
         },
         function(err) {
           if (err) return console.error(err);
-          console.error('WARNING: Careful this probably does not work.');
           // TODO: Finish converting to npm from npmi
           npm.load({ save: false, progress: false }, function(err) {
             if (err) return err;
