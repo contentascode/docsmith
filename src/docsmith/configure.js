@@ -49,8 +49,8 @@ const toSnakeCase = string =>
     .join('_');
 
 const doGet = async () => {
-  const git = await doCheck();
   if (!settings.config) return false;
+  const git = await doCheck();
   const repository = yaml.safeLoad(fs.readFileSync(settings.config, 'utf8'));
   const instances = await doInstancesInfo({ instances: repository.instances });
   const workspaces = await doWorkspacesInfo({ workspaces: repository.workspaces });
@@ -86,31 +86,94 @@ const doEnsure = async ({ non_interactive }) => {
   return configuration;
 };
 
-const doInit = async ({ non_interactive }) => {
+const doInit = async ({ non_interactive, configuration }) => {
   // We check if there are potential conflicts with the current configuration.
   // If there is no key for the instance, then we just initialise with the content package values.
   // If there is a key for the instance we run update.
 
-  const { repository } = await promptRepository({ non_interactive, default_path: process.env.HOME + '/.content' });
+  let repository;
 
-  const confirmed = await promptConfirm({ non_interactive });
-  debug('confirmed', confirmed);
+  if (!configuration || !fs.existsSync(configuration.config.replace('/content.yml', ''))) {
+    const prompt_repository = await promptRepository({ non_interactive, default_path: process.env.HOME + '/.content' });
+    repository = prompt_repository.repository;
 
-  fs.existsSync(repository) || fs.mkdirSync(repository);
-  debug('> Content repository: ', repository);
+    const confirmed = await promptConfirm({ non_interactive });
+    debug('confirmed', confirmed);
 
-  const pkgs = path.join(repository, 'packages');
-  fs.existsSync(pkgs) || fs.mkdirSync(pkgs);
-  debug('> Content packages directory: ', pkgs);
+    fs.existsSync(repository) || fs.mkdirSync(repository);
+    debug('> Content repository: ', repository);
+  } else {
+    repository = configuration.config.replace('/content.yml', '');
+  }
 
-  // Create or overwrite package.json to enable desired folder structure
-  fs.writeFileSync(
-    path.join(pkgs, 'package.json'),
-    JSON.stringify({ private: true, name: 'contentascode', version: '0.0.0' }),
-    'utf-8'
-  );
-  debug('> Content repository configuration created: ', path.join(pkgs, 'package.json'));
-  return { repository };
+  if (!fs.existsSync(path.join(repository, 'packages'))) {
+    const pkgs = path.join(repository, 'packages');
+    fs.existsSync(pkgs) || fs.mkdirSync(pkgs);
+    debug('> Content packages directory: ', pkgs);
+
+    // Create or overwrite package.json to enable desired folder structure
+    fs.writeFileSync(
+      path.join(pkgs, 'package.json'),
+      JSON.stringify({ private: true, name: 'contentascode', version: '0.0.0' }),
+      'utf-8'
+    );
+    debug('> Content repository package.json created: ', path.join(pkgs, 'package.json'));
+  }
+
+  let content;
+
+  if (!fs.existsSync(path.join(repository, 'content.yml'))) {
+    debug('No repository configuration');
+    content = {
+      instances: {
+        [settings.instance]: { name: settings.description, package: settings.package }
+      }
+    };
+  } else {
+    debug('Existing repository configuration');
+    content = yaml.safeLoad(fs.readFileSync(path.join(repository, 'content.yml'), 'utf8'));
+    if (content.repository && content.repository.instances && content.repository.instances[settings.instance]) {
+      // TODO: Upgrade path
+      debug('Configuration exists and instance already exists');
+      exit(
+        'This repository has already been configured. Please run ' + settings.instance + 'start to preview the content.'
+      );
+    } else if (
+      content.repository &&
+      content.repository.instances &&
+      content.repository.instances[settings.instance] === undefined
+    ) {
+      debug('Configuration exists but instance does not. Adding instance configuration');
+      content = {
+        ...content,
+        instances: {
+          ...content.instances,
+          [settings.instance]: { name: settings.description, package: settings.package }
+        }
+      };
+    } else {
+      exit(
+        'The content.yml file in ' +
+          path.join(repository, '.content.yml') +
+          ' is not recognised. This beta cannot upgrade configuration yet. Please contact the developer at jun@iilab.org ',
+        new Error('Content.yml structure not recognised')
+      );
+    }
+  }
+
+  // const instances = await doInstancesInfo({ instances: content.repository.instances });
+  // debug('instances', instances);
+
+  fs.writeFileSync(path.join(repository, 'content.yml'), yaml.safeDump(content), 'utf8');
+  debug('> Content repository configuration updated: ', path.join(repository, 'content.yml'));
+
+  // Now workspace needs to be initialised which for now is done outside `configure` and in `init`.
+  // const workspaces = await doWorkspacesInfo({ workspaces: repository.workspaces });
+
+  const instances = await doInstancesInfo({ instances: content.instances });
+
+  return { settings, repository: { ...content, instances } };
+
   // console.log('content', content);
   // const resClone = await clone(content.packages, content.repository);
   //

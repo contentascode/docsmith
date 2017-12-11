@@ -7,54 +7,62 @@ const id = x => x;
 const local = p => path.join(process.cwd(), p);
 const repo = p => path.join(process.env.HOME, '.content', p);
 
-// Resolve content config file
-const resolve = [/*local('content.yml'), local('_content.yml')*/ repo('content.yml')];
-debug('resolve', resolve);
-let config;
-let config_path;
-try {
-  // Get document, or throw exception on error
-  config_path = resolve[resolve.map(fs.existsSync).findIndex(id)];
+const current = () => {
+  // Resolve content config file
+  const resolve = [/*local('content.yml'), local('_content.yml')*/ repo('content.yml')];
+  debug('resolve', resolve);
+  let config;
+  let config_path;
+  try {
+    // Get document, or throw exception on error
+    config_path = resolve[resolve.map(fs.existsSync).findIndex(id)];
 
-  debug('resolve.map(fs.existsSync)', resolve.map(fs.existsSync));
-  debug('config_path', config_path);
-  if (config_path) {
-    config = yaml.safeLoad(fs.readFileSync(config_path, 'utf8'));
-    config.integration = config.integration || {};
-  } else {
-    debug('Cannot find content as code configuration.');
-    // console.log(
-    //   'Make sure to initialise your content repository or run this command from within a content as code project.'
-    // );
+    debug('resolve.map(fs.existsSync)', resolve.map(fs.existsSync));
+    debug('config_path', config_path);
+    if (config_path) {
+      config = yaml.safeLoad(fs.readFileSync(config_path, 'utf8'));
+      config.integration = config.integration || {};
+    } else {
+      debug('Cannot find content as code configuration.');
+      // console.log(
+      //   'Make sure to initialise your content repository or run this command from within a content as code project.'
+      // );
+    }
+  } catch (e) {
+    console.log(e);
+    process.exit(1);
   }
-} catch (e) {
-  console.log(e);
-  process.exit(1);
-}
 
-// Brittle...
-const instance = path.basename(process.argv[1]).split('-')[0];
-debug('instance', instance);
-const pkg_path = fs.readlinkSync(`${process.argv[1].split('-')[0]}-pkgpath`);
-debug('pkg_path', pkg_path);
+  // Brittle...
+  const instance = path.basename(process.argv[1]).split('-')[0];
+  debug('instance', instance);
+  const pkg_path = fs.readlinkSync(`${process.argv[1].split('-')[0]}-pkgpath`);
+  debug('pkg_path', pkg_path);
 
-const pkg_json = path.join(process.argv[1].split('/bin/')[0], '/bin/', pkg_path);
-debug('pkg_json', pkg_json);
+  const pkg_json = path.join(process.argv[1].split('/bin/')[0], '/bin/', pkg_path);
+  debug('pkg_json', pkg_json);
 
-const pkg = pkg_path.replace('../lib/node_modules/', '').replace('/package.json', '');
+  const pkg = pkg_path.replace('../lib/node_modules/', '').replace('/package.json', '');
 
-const { description, version, repository } = require(pkg_json);
+  const { description, version, repository } = require(pkg_json);
 
-const pkgs = path.join(config_path.split('/content.yml')[0], 'packages');
+  const pkgs = config_path && path.join(config_path.split('/content.yml')[0], 'packages');
 
-module.exports.instance = instance;
+  return { instance, pkg, description, config: config_path, packages: pkgs, version, repository, pkg_path };
+};
+
+const { instance, pkg, description, config, packages, version, repository, pkg_path } = current();
+
+module.exports = { instance, description, config, packages, version, repository, pkg_path, current };
 module.exports.package = pkg;
-module.exports.description = description;
-module.exports.config = config_path;
-module.exports.packages = pkgs;
-module.exports.version = version;
-module.exports.repository = repository;
-module.exports.pkg_path = pkg_path;
+
+// module.exports.instance = instance;
+// module.exports.description = description;
+// module.exports.config = config_path;
+// module.exports.packages = pkgs;
+// module.exports.version = version;
+// module.exports.repository = repository;
+// module.exports.pkg_path = pkg_path;
 
 // module.exports.save = settings_save;
 //

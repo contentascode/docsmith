@@ -45,9 +45,11 @@ const doWorkspacesInfo = async ({ workspaces }) => {
 const doWorkspaceCheck = async ({ non_interactive, configuration }) => {
   // Check if current folder is workspace.
   const current = process.cwd();
-  const known = Object.keys(configuration.workspaces)
-    .map(key => Object.keys(configuration.workspaces[key])[0])
-    .includes(current);
+  const known =
+    configuration.workspaces &&
+    Object.keys(configuration.workspaces)
+      .map(key => Object.keys(configuration.workspaces[key])[0])
+      .includes(current);
   debug('known', known);
   if (known) {
     return current;
@@ -65,6 +67,9 @@ const doWorkspaceCheck = async ({ non_interactive, configuration }) => {
 
 const doWorkspaceInit = async ({ non_interactive, configuration }) => {
   // Change working directory temporarily as npm api is insufficient.
+  configuration.settings = require('./utils/settings').current();
+  configuration.settings.package = configuration.settings.pkg;
+  debug('configuration', configuration);
   const current = process.cwd();
   try {
     process.chdir(configuration.settings.packages);
@@ -75,7 +80,11 @@ const doWorkspaceInit = async ({ non_interactive, configuration }) => {
 
   // Create folder for @instance
 
-  if (configuration.workspaces[current]['@' + configuration.settings.instance] !== undefined) {
+  if (
+    configuration.workspaces &&
+    configuration.workspaces[current] &&
+    configuration.workspaces[current]['@' + configuration.settings.instance] !== undefined
+  ) {
     // TODO: Do a packages update instead.
     exit('The workspace has already been initialised. Please use load or new to create a new content package.');
   } else {

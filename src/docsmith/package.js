@@ -84,6 +84,9 @@ const doPackagesInit = async ({ non_interactive, configuration, packages, curren
   // TODO: Think about linking
   // Check if https or git url.
 
+  configuration.settings = require('./utils/settings').current();
+  configuration.settings.package = configuration.settings.pkg;
+  debug('configuration.settings', configuration.settings);
   debug('packages', packages);
 
   // Clone
@@ -156,9 +159,17 @@ const doPackagesInit = async ({ non_interactive, configuration, packages, curren
   });
   debug('installed', installed);
 
+  const installed_packages = await doInstancesInfo({ instances: configuration.repository.instances });
+  debug('installed_packages', installed_packages);
+
   // Deploy symlinks.
-  Object.keys(content_packages).forEach(key => {
-    Object.keys(content_packages[key].workspace)
+  // TODO: async/await
+  Object.keys(installed_packages[configuration.settings.instance].content.packages).forEach(key => {
+    debug(
+      'installed_packages[configuration.settings.instance].content.packages[key]',
+      installed_packages[configuration.settings.instance].content.packages[key]
+    );
+    Object.keys(installed_packages[configuration.settings.instance].content.packages[key].workspace)
       .reduce((acc, workspace) => (acc.includes(workspace.split('/')[0]) ? acc : [...acc, workspace]), [])
       .forEach(group => {
         debug('link', path.join(configuration.settings.packages, key, 'content'));

@@ -38,6 +38,7 @@ async function start({
   debug('clean', clean);
 
   const repository = yaml.safeLoad(fs.readFileSync(settings.config, 'utf8'));
+  debug('repository', repository);
   const instances = await doInstancesInfo({ instances: repository.instances });
   debug('instances', instances);
   debug(
@@ -140,10 +141,10 @@ async function start({
                   //   '404': '/404.html'
                   // },
                   redirects: {
-                    '/': workspace,
-                    '/searchMeta.json': '/' + workspace + '/searchMeta.json',
-                    '/searchIndex.json': '/' + workspace + '/searchIndex.json',
-                    '/debug-ui/data.json': '/' + workspace + '/debug-ui/data.json'
+                    '/': name,
+                    '/searchMeta.json': '/' + name + '/searchMeta.json',
+                    '/searchIndex.json': '/' + name + '/searchIndex.json',
+                    '/debug-ui/data.json': '/' + name + '/debug-ui/data.json'
                     // '/old_url.php?lang=en': '/en/new_url/'
                   }
                 }
@@ -153,7 +154,7 @@ async function start({
       },
       err => {
         if (err) {
-          return exit('Error deploying' + workspace, err);
+          return exit('Error deploying' + name, err);
         }
         debug('>> Finished. ');
       }

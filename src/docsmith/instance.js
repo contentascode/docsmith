@@ -9,12 +9,13 @@ global.Promise = require('bluebird');
 
 global.Promise.promisifyAll(fs);
 
-const settings = require('./utils/settings');
 const { exit } = require('./utils/terminal');
 const { doInfo } = require('./utils/git');
 const { doListGlobal } = require('./utils/npm');
 
-const doInstancesInfo = async ({ instances }) => {
+const doInstancesInfo = async ({ instances }, s) => {
+  const settings = s || require('./utils/settings').current();
+  settings.package = settings.pkg;
   debug('instances', instances);
   return Promise.all(
     Object.keys(instances).map(async instance => {
@@ -30,7 +31,7 @@ const doInstancesInfo = async ({ instances }) => {
         .map(pkg => ({
           [pkg]: {
             package: content.packages[pkg],
-            ...(fs.existsSync(path.join(settings.packages, pkg, './content.yml'))
+            ...(settings.packages && fs.existsSync(path.join(settings.packages, pkg, './content.yml'))
               ? {
                   status: 'installed',
                   install: path.join(settings.packages, pkg),

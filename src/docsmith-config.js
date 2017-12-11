@@ -46,9 +46,15 @@ const doConfigShow = async () => {
       message: toYaml(configuration)
     });
   } else {
+    debug('settings', settings);
     banner({
       title: 'Config',
-      message: 'No configuration found. Run `' + settings.instance + ' config init` or your workspace.' + '\n' + '\n'
+      message:
+        'No configuration found. Run `' +
+        settings.instance +
+        ' init` in a folder to initiliase it as your workspace.' +
+        '\n' +
+        '\n'
     });
   }
 };

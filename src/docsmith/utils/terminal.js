@@ -56,10 +56,10 @@ const promptConfirm = async ({ non_interactive }) => {
 
 const promptRepository = async ({ non_interactive, default_path }) => {
   debug('non_interactive', non_interactive);
-  const repository = path.resolve(__dirname, './prompts/repository.js');
-  debug('repository', repository);
+  const content_repository = path.resolve(__dirname, './prompts/content_repository.js');
+  debug('content_repository', content_repository);
   try {
-    const { repository } = await prompt(repository, {
+    const { repository } = await prompt(content_repository, {
       non_interactive,
       default_path
     });

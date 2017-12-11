@@ -21,11 +21,23 @@ const listGlobal = pkg =>
       },
       err => {
         if (err) reject(err);
-        debug('listGlobal.pkg', pkg);
+        debug('pkg', pkg);
         const prefix = npm.config.globalPrefix;
+        debug('prefix', prefix);
         const pkgPath = path.join(prefix, 'lib', 'node_modules', pkg);
-        const linkStat = fs.lstatSync(pkgPath);
-        const pkgLink = linkStat.isSymbolicLink() ? fs.readlinkSync(pkgPath) : false;
+        debug('pkgPath', pkgPath);
+
+        let pkgLink;
+        try {
+          const linkStat = fs.lstatSync(pkgPath);
+          pkgLink = linkStat.isSymbolicLink()
+            ? fs.realpathSync(path.join(prefix, 'lib', 'node_modules', fs.readlinkSync(pkgPath)))
+            : false;
+        } catch (e) {
+          pkgLink = false;
+        }
+        debug('pkgLink', pkgLink);
+
         const info = require(path.join(pkgPath, 'package.json'));
         // debug('info', info);
         resolve({ path: pkgPath, link: pkgLink, ...info });

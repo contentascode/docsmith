@@ -1,4 +1,5 @@
-/* global defaults prompt */
+/* global default_path non_interactive prompt */
+
 module.exports = {
   repository: non_interactive
     ? default_path
