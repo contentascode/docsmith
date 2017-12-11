@@ -16,6 +16,15 @@ const { doListGlobal } = require('./utils/npm');
 const doInstancesInfo = async ({ instances }, s) => {
   const settings = s || require('./utils/settings').current();
   settings.package = settings.pkg;
+
+  if (!instances)
+    exit(
+      'Instances configuration missing. Your ~/.content/content.yml file might be corrupted. Try deleting it and run ' +
+        settings.instance +
+        ' init.',
+      Error('instances configuration not found')
+    );
+
   debug('instances', instances);
   return Promise.all(
     Object.keys(instances).map(async instance => {
