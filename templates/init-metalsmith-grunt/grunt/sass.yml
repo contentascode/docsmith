@@ -1,3 +1,0 @@
-main:
-  files:
-    '<%= paths.dist %>/css/skeleton.css': 'code/scss/skeleton.scss'

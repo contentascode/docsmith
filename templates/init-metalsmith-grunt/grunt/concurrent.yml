@@ -1,9 +1,0 @@
-server:
-  - copy:code
-  - copy:styles
-  - copy:fonts
-  - copy:layouts
-  - copy:vendor-styles
-  - copy:vendor-js
-  - copy:images
-  # - sass:main
