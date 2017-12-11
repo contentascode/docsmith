@@ -6,7 +6,9 @@
 
 const program = require('commander');
 const pjson = require('../package.json');
+const debug = require('debug')('docsmith:init');
 
+global.Promise = require('bluebird');
 program.version(pjson.version).option('-v, --verbose', 'Display additional log output');
 
 process.once('SIGINT', function() {
@@ -15,8 +17,12 @@ process.once('SIGINT', function() {
 
 program
   .command('init [template]', 'initialise the current folder with the default or specified template')
+  .command('start', 'Start preview')
+  .command('new', 'Create new content package')
+  .command('load', 'Load existing content package')
+  .command('save', 'Save current content package')
+  .command('config', 'Display configuration')
   .command('link [mappings]', 'link content packages')
-  .command('start', 'build, serve and watch content for changes')
   .command(
     'install [component] [plugin]',
     'EXPERIMENTAL - install one or more components with their default settings or a specific plugin'

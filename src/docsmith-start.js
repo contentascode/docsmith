@@ -32,7 +32,7 @@ const { link, source, baseurl, watch, clean, debug: dbg, warning } = program;
 if (config) {
   debug('config', config);
   // called from a content as code instance, initialise from the instance configuration
-  start.run({ workspace, config, link, source, watch, clean, dbg, baseurl, warning });
+  start.run({ workspace, config, link, source, watch, clean, dbg, baseurl, warning }).catch(e => console.error(e));
 } else {
   console.warn('Could not find config. Aborting start. Please contact the developer');
 }

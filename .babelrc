@@ -6,6 +6,7 @@
         "useBuiltIns": true
       }
     ]
+    /*["transform-async-to-generator"]*/
   ],
   "presets": [
     [
@@ -13,8 +14,10 @@
       {
         "exclude": ["transform-regenerator"],
         "targets": {
-          "node": ["4"]
-        }
+          "node": "current"
+        },
+        "useBuiltIns": true,
+        "debug": true
       }
     ]
   ]

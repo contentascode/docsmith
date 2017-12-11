@@ -1,4 +1,4 @@
-const debug = require('debug')('docsmith:init');
+const debug = require('debug')('docsmith:legacy_packages');
 const fs = require('fs-extra');
 const npm = require('npm');
 const async = require('async');
@@ -13,13 +13,14 @@ const install = function install({ packages, repository, link, verbose }, done) 
   debug('repository', repository);
   if (!packages || packages.length == 0) return done();
   async.reduce(
-    Object.keys(packages).map(name => ({ name, pkg: packages[name] })),
+    Object.keys(packages).map(name => ({ name, pkg: packages[name].package })),
     [],
     (pkgs, { name, pkg }, callback) => {
       fs.existsSync(name) || fs.ensureDirSync(name);
       try {
         process.chdir(name);
         debug('changed directory: ', name);
+        debug('process.cwd()', process.cwd());
       } catch (err) {
         done('\nError while changing directory: ' + name);
       }
@@ -32,7 +33,7 @@ const install = function install({ packages, repository, link, verbose }, done) 
         debug('>> Linking content package: ' + name);
       } else {
         console.log('Installing', pkg);
-        debug('>> Installing content package: ' + pkg);
+        debug('>> Installing content package: ' + pkg, process.cwd());
       }
 
       // link uses npm.globalDir to check for locally linked packages and npm.dir for the installation destination.
@@ -41,9 +42,10 @@ const install = function install({ packages, repository, link, verbose }, done) 
       // npm.prefix
       // link therefore needs both to be set but setting prefix manually overrides both...
 
-      npm.load({ save: false, progress: false, loglevel: verbose ? 'info' : 'silent' }, function(err) {
+      npm.load({ global: false, save: false, progress: false, loglevel: verbose ? 'info' : 'silent' }, function(err) {
         if (err) return err;
-        npm.commands[link ? 'link' : 'install']([link ? name : pkg], function(err) {
+        debug('>> Before npm install ' + [link ? name : pkg], process.cwd());
+        npm.commands[link ? 'link' : 'install']('.', [link ? name : pkg], function(err) {
           if (err && err.code === 'E404') {
             console.error('Could not find content package: ' + err.pkgid);
             return callback(err);
@@ -56,7 +58,8 @@ const install = function install({ packages, repository, link, verbose }, done) 
           // Copy module files to the content package root.
           fs.copySync(
             path.join(repository, 'packages', name, 'node_modules', name),
-            path.join(repository, 'packages', name)
+            path.join(repository, 'packages', name),
+            { overwrite: true, errorOnExist: false, dereference: true }
           );
 
           const exists = fs.pathExistsSync(path.join(repository, 'packages', name, './content.yml'));

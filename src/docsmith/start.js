@@ -1,5 +1,5 @@
 const debug = require('debug')('docsmith:start');
-// const fs = require('fs-extra');
+const fs = require('fs-extra');
 const realPath = require('fs').realpathSync;
 // const read = require('fs').readFileSync;
 const path = require('path');
@@ -9,14 +9,17 @@ const path = require('path');
 const chalk = require('chalk');
 const os = require('os');
 // require('longjohn');
+const yaml = require('js-yaml');
 
 const metalsmith = require('./utils/metalsmith');
 
 const settings = require('./utils/settings');
 
+const { doInstancesInfo } = require('./instance');
+
 const pad = (string, char, length) => string + char.repeat(length - string.length);
 
-function start({
+async function start({
   workspace,
   config,
   link = false,
@@ -33,21 +36,51 @@ function start({
   debug('baseurl', baseurl);
   debug('dbg', dbg);
   debug('clean', clean);
-  debug('settings.config', settings.config);
 
-  // TODO: hardwired for now.
+  const repository = yaml.safeLoad(fs.readFileSync(settings.config, 'utf8'));
+  const instances = await doInstancesInfo({ instances: repository.instances });
+  debug('instances', instances);
+  debug(
+    'ok',
+    Object.keys(instances[settings.instance].content.packages)
+      .map(pkg =>
+        Object.keys(instances[settings.instance].content.packages[pkg].workspace).map(wk => ({
+          pkg,
+          wk: { name: wk, scripts: instances[settings.instance].content.packages[pkg].workspace[wk] }
+        }))
+      )
+      .reduce((acc, cur) => [...acc, ...cur], [])
+  );
   const workspaces = workspace
     ? ['@safetag/' + workspace]
-    : Object.keys(settings.config.workspace).filter(
-        k => k.startsWith('@' + settings.instance) && settings.config.workspace[k][`${run ? 'run' : 'start'}`]
-      );
+    : Object.keys(instances[settings.instance].content.packages)
+        .map(pkg =>
+          Object.keys(instances[settings.instance].content.packages[pkg].workspace).map(wk => ({
+            pkg,
+            wk: { name: wk, scripts: instances[settings.instance].content.packages[pkg].workspace[wk] }
+          }))
+        )
+        .reduce((acc, cur) => [...acc, ...cur], [])
+        .filter(
+          ({ pkg, wk: { name } }) =>
+            name.startsWith('@' + settings.instance) &&
+            instances[settings.instance].content.packages[pkg].workspace[name][`${run ? 'run' : 'start'}`]
+        )
+        .map(({ wk }) => wk);
 
-  // console.log('workspaces', workspaces);
+  console.log('workspaces', workspaces);
 
-  const repository = path.join(process.env.HOME, '.content');
-
-  // For now, only one content package per CLI client.
-  const base_toolkit = realPath(path.join(repository, 'packages', settings.config.packages[settings.instance]));
+  console.log(
+    'path',
+    instances[settings.instance].content.packages[Object.keys(instances[settings.instance].content.packages)[0]].install
+  );
+  // For now, only one root content package per CLI client.
+  const base_toolkit = realPath(
+    path.join(
+      instances[settings.instance].content.packages[Object.keys(instances[settings.instance].content.packages)[0]]
+        .install
+    )
+  );
 
   console.log(
     '\n' +
@@ -64,8 +97,9 @@ function start({
       '\n'
   );
 
-  workspaces.forEach(function(workspace, idx) {
-    console.log('>> Starting workspace: ', path.join(base_toolkit, config.workspace[workspace].start));
+  workspaces.forEach(({ name, scripts }, idx) => {
+    debug('config.');
+    console.log('>> Starting workspace: ' + name, path.join(base_toolkit, scripts.start));
     console.log(
       '>> Please wait about 5 seconds while the website is built and you see the message "successfully built files."'
     );
@@ -73,14 +107,14 @@ function start({
     //TODO: Maybe factor out webserver.
 
     metalsmith(
-      path.join(base_toolkit, config.workspace[workspace].start),
+      path.join(base_toolkit, scripts.start),
       {
         ...(source ? { source } : null),
         dbg,
         clean,
-        destination: path.join(repository, 'build', workspace),
+        destination: path.join(settings.packages.replace('/packages', ''), 'build', name),
         metadata: {
-          ...config.workspace[workspace].metadata,
+          ...scripts.metadata,
           site: { baseurl },
           watch,
           warning: !!warning
