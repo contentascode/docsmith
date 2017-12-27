@@ -185,7 +185,7 @@ const doPackagesInit = async ({ non_interactive, configuration, packages, curren
   const uninstalled = Object.keys(packages)
     .filter(key => packages[key].status === 'uninstalled')
     .map(key => packages[key].package);
-  console.log('uninstalled', uninstalled);
+  debug('uninstalled', uninstalled);
 
   const commits = await doClone(uninstalled, configuration.settings.packages);
   debug('commits', commits);

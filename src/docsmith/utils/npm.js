@@ -126,7 +126,7 @@ const view = packages =>
       if (err) reject(err);
       debug('npm.view.packages', packages);
       npm.commands.view(packages, true, (err, res) => {
-        if (err) reject(err);
+        if (err) return reject(err);
         debug('version', res.version);
         resolve(res);
       });
