@@ -2,7 +2,7 @@ const debug = require('debug')('docsmith:init');
 
 const { banner, exit } = require('./utils/terminal');
 const configure = require('./configure');
-const { doWorkspaceInit, doWorkspaceCheck } = require('./workspace');
+const { doWorkspaceInit, doWorkspaceCheck, doWorkspaceUpgrade } = require('./workspace');
 const settings = require('./utils/settings');
 
 const doInit = async ({ non_interactive }) => {
@@ -28,7 +28,7 @@ const doInit = async ({ non_interactive }) => {
     debug('configuration needs to be updated');
     configuration = await configure.doInit({ non_interactive, configuration });
   }
-
+  debug('configuration', configuration);
   const workspace = await doWorkspaceCheck({ non_interactive: true, configuration, path: process.cwd() });
   // Check if workspace is properly described in repository.workspace
   //   - If not, just update the workspace ? Or could this be a problem?
@@ -36,9 +36,7 @@ const doInit = async ({ non_interactive }) => {
     debug('workspace needs to be initialised');
     configuration = await doWorkspaceInit({ non_interactive, configuration });
   } else {
-    exit(
-      `Workspace already initialised. You can update your content packages with '${settings.instance} update', \nor create a new content package by using '${settings.instance} new'`
-    );
+    configuration = await doWorkspaceUpgrade({ non_interactive, configuration });
   }
   //
   // // Check if packages described in the repository config (possibly updated from the initial bootstrap config)

@@ -124,9 +124,10 @@ const view = packages =>
   new Promise((resolve, reject) =>
     npm.load({}, err => {
       if (err) reject(err);
+      debug('npm.view.packages', packages);
       npm.commands.view(packages, true, (err, res) => {
         if (err) reject(err);
-        debug('view.packages', res._id);
+        debug('version', res.version);
         resolve(res);
       });
     })

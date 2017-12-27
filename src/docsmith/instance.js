@@ -13,6 +13,22 @@ const { exit } = require('./utils/terminal');
 const { doInfo } = require('./utils/git');
 const { doListGlobal } = require('./utils/npm');
 
+const isLink = path => {
+  try {
+    const lstat = fs.lstatSync(path);
+    debug('lstat', lstat);
+    debug('lstat.isSymbolicLink()', lstat.isSymbolicLink());
+    return lstat.isSymbolicLink();
+  } catch (e) {
+    if (e.code == 'ENOENT') {
+      return e;
+    }
+    process.exit();
+  }
+};
+
+const toDir = path => (isLink(path) ? fs.readlinkSync(path) : path);
+
 const doInstancesInfo = async ({ instances }, s) => {
   const settings = s || require('./utils/settings').current();
   settings.package = settings.pkg;
@@ -43,7 +59,7 @@ const doInstancesInfo = async ({ instances }, s) => {
             ...(settings.packages && fs.existsSync(path.join(settings.packages, pkg, './content.yml'))
               ? {
                   status: 'installed',
-                  install: path.join(settings.packages, pkg),
+                  install: toDir(path.join(settings.packages, pkg)),
                   ...yaml(read(path.join(settings.packages, pkg, './content.yml'), 'utf8'))
                 }
               : { status: 'uninstalled' })

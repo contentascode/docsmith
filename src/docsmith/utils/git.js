@@ -166,8 +166,33 @@ const cloneRepo = fromPromised(({ url, name }) => {
     .catch(e => Failure(e));
 });
 
+// Key -> Task Validation Error ()
+const pullRepo = fromPromised(path => {
+  // const options = new nodegit.CloneOptions();
+  // const fetchOpts = new nodegit.FetchOptions();
+  // options.fetchOpts = fetchOpts;
+  // const callbacks = new nodegit.RemoteCallbacks();
+  // fetchOpts.callbacks = callbacks;
+  let bar;
+  const newObjects = 0;
+  debug('Pulling', path);
+
+  return nodegit.Repository
+    .open(path)
+    .then(repository => {
+      repository.fetchAll();
+      return repository;
+    })
+    .then(repository => repository.mergeBranches('master', 'origin/master'))
+    .then(oid => Success(oid))
+    .catch(e => Failure(e));
+});
+
 // [ gitURL ] -> Task [ Validation Error () ]
 const doCloneRepos = (packages, path) => waitAll(packages.map(repo => cloneRepo(repo, path)));
+
+// [ gitURL ] -> Task [ Validation Error () ]
+const doPullRepos = paths => waitAll(paths.map(path => pullRepo(path)));
 
 // Info -> gitURL
 const getRepo = ({ value: info }) =>
@@ -176,14 +201,14 @@ const getRepo = ({ value: info }) =>
 // objPck: the packages key of the content.yml file of the instance
 // path: the destination path for cloning the repo.
 // objPck -> path -> Task Validation [ CommitSha ]
-const doClone = async (objPck, path) => {
+const doClone = async (packages, path) => {
   debug('Getting git url from npm');
-  debug('objPck', objPck);
-  const packages = Object.keys(objPck); //.map(key => objPck[key].split('@')[0]);
+  // debug('objPck', objPck);
+  // const packages = Object.keys(objPck); //.map(key => objPck[key].split('@')[0]);
   debug('clone.packages', packages);
 
   // [ Package ] -> Task [ Validation Error Info ]
-  const res = await taskView(packages)
+  const res = await taskView(packages.map(pkg => pkg.split('@')[0]))
     // Task Validation Error [ Info ] -> Task Validation Error [ Repos ]
     .map(getRepo)
     // Task Validation Error [ gitURL ] -> Task [ Validation Error () ]
@@ -196,9 +221,34 @@ const doClone = async (objPck, path) => {
   return res.matchWith({
     Success: ({ value }) => ({ value }),
     Failure: ({ value }) => {
-      exit(`Error while cloning ${Object.keys(objPck)} into ${path}`, value);
+      exit(`Error while cloning ${Object.keys(packages)} into ${path}`, value);
+    }
+  });
+};
+// objPck: the packages key of the content.yml file of the instance
+// path: the destination path for cloning the repo.
+// objPck -> path -> Task Validation [ CommitSha ]
+const doPull = async objPck => {
+  debug('Getting git url from npm');
+  debug('objPck', objPck);
+  const packages = Object.keys(objPck).map(key => objPck[key].install); //.map(key => objPck[key].split('@')[0]);
+  debug('pull.packages', packages);
+
+  // [ path ] -> Task [ Validation Error [ path ] ]
+  const res = await of(packages)
+    // Task Validation Error [ path ] -> Task [ Validation Error () ]
+    .chain(paths => doPullRepos(paths))
+    // Task [ Validation Error () ] -> Task Validation [ Error ] ()
+    .map(collect)
+    .run()
+    .promise();
+
+  return res.matchWith({
+    Success: ({ value }) => ({ value }),
+    Failure: ({ value }) => {
+      exit(`Error while pulling ${Object.keys(objPck)}`, value);
     }
   });
 };
 
-export { doCheck, doClone, doInfo };
+export { doCheck, doClone, doPull, doInfo };

@@ -15,7 +15,7 @@ const { doCheck, doClone, doInfo } = require('./utils/git');
 const { doWorkspaceInit, doWorkspaceCheck, doWorkspacesInfo } = require('./workspace');
 const { doInstancesInfo } = require('./instance');
 const { doPackagesInit, doPackagesCheck } = require('./package');
-const settings = require('./utils/settings');
+const { current, ...settings } = require('./utils/settings');
 
 // Default to creating global ~/.content and link it to current workspace. (Using this as a workspace detection feature).
 // Register workspace in `.content/content.yml` file.
@@ -52,8 +52,10 @@ const doGet = async () => {
   if (!settings.config) return false;
   const git = await doCheck();
   const repository = yaml.safeLoad(fs.readFileSync(settings.config, 'utf8'));
-  const instances = await doInstancesInfo({ instances: repository.instances });
-  const workspaces = await doWorkspacesInfo({ workspaces: repository.workspaces });
+  debug('repository', repository);
+  const instances = await doInstancesInfo({ instances: repository.instances || {} });
+  debug('instances', instances);
+  const workspaces = await doWorkspacesInfo({ workspaces: repository.workspaces || {} });
   debug('workspaces', workspaces);
 
   return { settings, repository: { ...repository, instances }, workspaces, git, user: toSnakeCase(git.email) };
@@ -92,8 +94,9 @@ const doInit = async ({ non_interactive, configuration }) => {
   // If there is a key for the instance we run update.
 
   let repository;
+  let shouldUpgrade = false;
 
-  if (!configuration || !fs.existsSync(configuration.config.replace('/content.yml', ''))) {
+  if (!configuration || !fs.existsSync(configuration.settings.config.replace('/content.yml', ''))) {
     const prompt_repository = await promptRepository({ non_interactive, default_path: process.env.HOME + '/.content' });
     repository = prompt_repository.repository;
 
@@ -103,7 +106,7 @@ const doInit = async ({ non_interactive, configuration }) => {
     fs.existsSync(repository) || fs.mkdirSync(repository);
     debug('> Content repository: ', repository);
   } else {
-    repository = configuration.config.replace('/content.yml', '');
+    repository = configuration.settings.config.replace('/content.yml', '');
   }
 
   if (!fs.existsSync(path.join(repository, 'packages'))) {
@@ -132,23 +135,35 @@ const doInit = async ({ non_interactive, configuration }) => {
   } else {
     debug('Existing repository configuration');
     content = yaml.safeLoad(fs.readFileSync(path.join(repository, 'content.yml'), 'utf8'));
-    if (content.repository && content.repository.instances && content.repository.instances[settings.instance]) {
-      // TODO: Upgrade path
-      debug('Configuration exists and instance already exists');
-      exit(
-        'This repository has already been configured. Please run ' + settings.instance + 'start to preview the content.'
-      );
-    } else if (
-      content.repository &&
-      content.repository.instances &&
-      content.repository.instances[settings.instance] === undefined
+    debug('content.yml', content);
+    const current = process.cwd();
+    debug('current', current);
+    if (
+      content &&
+      content.instances &&
+      content.instances[settings.instance] &&
+      content.workspaces &&
+      content.workspaces[current]
     ) {
+      // TODO: Upgrade path
+      debug('Configuration exists and instance already exists. Upgrade needed.');
+      shouldUpgrade = true;
+    } else if (content.instances === undefined || content.instances[settings.instance] === undefined) {
       debug('Configuration exists but instance does not. Adding instance configuration');
       content = {
         ...content,
         instances: {
           ...content.instances,
           [settings.instance]: { name: settings.description, package: settings.package }
+        }
+      };
+    } else if (content.workspaces === undefined || content.workspaces[current] === undefined) {
+      debug('Configuration exists but workspace does not. Adding workspace configuration');
+      content = {
+        ...content,
+        workspaces: {
+          ...content.workspaces,
+          [current]: {}
         }
       };
     } else {
@@ -171,8 +186,9 @@ const doInit = async ({ non_interactive, configuration }) => {
   // const workspaces = await doWorkspacesInfo({ workspaces: repository.workspaces });
 
   const instances = await doInstancesInfo({ instances: content.instances });
+  const workspaces = await doWorkspacesInfo({ workspaces: content.workspaces || {} });
 
-  return { settings, repository: { ...content, instances } };
+  return { settings, repository: { ...content, instances }, workspaces, shouldUpgrade };
 
   // console.log('content', content);
   // const resClone = await clone(content.packages, content.repository);
@@ -180,9 +196,10 @@ const doInit = async ({ non_interactive, configuration }) => {
   // debug('clone', resClone);
 };
 
-const doUpdate = async () => {
+const doUpdate = async ({ configuration }) => {
   // Called after an update has been spotted.
   // We need to merge and ask the user for confirmation.
+  const configured = await doPackagesUpgrade({ non_interactive, configuration });
 };
 
 export { doGet, doEnsure, doInit };

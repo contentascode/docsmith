@@ -7,12 +7,12 @@ global.Promise = require('bluebird');
 global.Promise.promisifyAll(fs);
 
 const { exit } = require('./utils/terminal');
-const { doPackagesInit } = require('./package');
+const { doPackagesInit, doPackagesUpgrade } = require('./package');
 const { doInfo } = require('./utils/git');
 
 const doWorkspacesInfo = async ({ workspaces }) => {
   return Promise.all(
-    workspaces.map(async workspace => {
+    Object.keys(workspaces).map(async workspace => {
       const files = await fs.readdirAsync(workspace);
       const instances = files.filter(file => file[0] === '@' && !/\.bak/.test(file));
       debug('instances', instances);
@@ -45,11 +45,15 @@ const doWorkspacesInfo = async ({ workspaces }) => {
 const doWorkspaceCheck = async ({ non_interactive, configuration }) => {
   // Check if current folder is workspace.
   const current = process.cwd();
+  debug(
+    'Object.keys(configuration.workspaces)',
+    Object.keys(configuration.workspaces).map(key => Object.keys(configuration.workspaces[key])[0])
+  );
   const known =
     configuration.workspaces &&
     Object.keys(configuration.workspaces)
       .map(key => Object.keys(configuration.workspaces[key])[0])
-      .includes(current);
+      .includes('@' + configuration.settings.instance);
   debug('known', known);
   if (known) {
     return current;
@@ -112,4 +116,36 @@ const doWorkspaceInit = async ({ non_interactive, configuration }) => {
   return configuration;
 };
 
-export { doWorkspaceInit, doWorkspaceCheck, doWorkspacesInfo };
+const doWorkspaceUpgrade = async ({ non_interactive, configuration }) => {
+  // Change working directory temporarily as npm api is insufficient.
+  configuration.settings = require('./utils/settings').current();
+  configuration.settings.package = configuration.settings.pkg;
+  debug('configuration', configuration);
+  const current = process.cwd();
+  try {
+    process.chdir(configuration.settings.packages);
+    debug('changed directory: ', configuration.settings.packages);
+  } catch (err) {
+    exit('\nError while changing directory', err);
+  }
+
+  // Get packages for instance.
+  const packages = configuration.repository.instances[configuration.settings.instance].content.packages;
+  debug('packages', packages);
+
+  // Initialise and symlink packages
+  const upgrade = await doPackagesUpgrade({ non_interactive, configuration, packages, current });
+  debug('upgrade', upgrade);
+
+  // restore working directory
+  try {
+    process.chdir(current);
+    debug('changed directory: ', current);
+  } catch (err) {
+    exit('\nError while changing directory', err);
+  }
+
+  return configuration;
+};
+
+export { doWorkspaceInit, doWorkspaceCheck, doWorkspaceUpgrade, doWorkspacesInfo };
