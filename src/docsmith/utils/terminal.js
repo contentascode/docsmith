@@ -126,12 +126,13 @@ const exit = (message, error) => {
             'Please alert the developer by submitting an issue \nat https://github.com/contentascode/safetag/issues and copy the whole output of the command above.\n\nApologies for the inconvenience!\n'
           )
       );
+      process.exit(1);
     } else {
       console.log(chalk.grey('\n'));
       console.log(chalk.grey('\n' + message + '\n'));
       console.log(chalk.grey('\n============================================================================\n\n'));
+      process.exit(0);
     }
-    process.exit(1);
   }
 };
 
