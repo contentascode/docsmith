@@ -58,6 +58,8 @@ module.exports = function(config, overrides, callback) {
 
   const metalsmith = new Metalsmith(dir);
 
+  debug('overrides', overrides);
+
   const {
     source = json.source,
     destination = json.destination,
@@ -73,7 +75,13 @@ module.exports = function(config, overrides, callback) {
   if (dbg) debugui.patch(metalsmith, { perf: true });
 
   if (source) metalsmith.source(source);
-  if (destination) metalsmith.destination(destination);
+
+  debug('destination', destination);
+  debug('overrides.destination', overrides.destination);
+  debug('json.destination', json.destination);
+
+  if (destination)
+    metalsmith.destination(json.destination ? path.join(destination, json.destination) : path.join(destination));
   if (concurrency) metalsmith.concurrency(concurrency);
   if (metadata) metalsmith.metadata(json.metadata ? _.merge(json.metadata, metadata) : metadata);
 

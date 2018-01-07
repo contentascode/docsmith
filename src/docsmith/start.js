@@ -32,6 +32,7 @@ async function start({
   run = false
 }) {
   debug('link', link);
+  debug('workspace', workspace);
   debug('source', source);
   debug('baseurl', baseurl);
   debug('dbg', dbg);
@@ -52,29 +53,22 @@ async function start({
       )
       .reduce((acc, cur) => [...acc, ...cur], [])
   );
-  const workspaces = workspace
-    ? ['@safetag/' + workspace]
-    : Object.keys(instances[settings.instance].content.packages)
-        .map(pkg =>
-          Object.keys(instances[settings.instance].content.packages[pkg].workspace).map(wk => ({
-            pkg,
-            wk: { name: wk, scripts: instances[settings.instance].content.packages[pkg].workspace[wk] }
-          }))
-        )
-        .reduce((acc, cur) => [...acc, ...cur], [])
-        .filter(
-          ({ pkg, wk: { name } }) =>
-            name.startsWith('@' + settings.instance) &&
-            instances[settings.instance].content.packages[pkg].workspace[name][`${run ? 'run' : 'start'}`]
-        )
-        .map(({ wk }) => wk);
+  const workspaces = Object.keys(instances[settings.instance].content.packages)
+    .map(pkg =>
+      Object.keys(instances[settings.instance].content.packages[pkg].workspace).map(wk => ({
+        pkg,
+        wk: { name: wk, scripts: instances[settings.instance].content.packages[pkg].workspace[wk] }
+      }))
+    )
+    .reduce((acc, cur) => [...acc, ...cur], [])
+    .filter(
+      ({ pkg, wk: { name } }) =>
+        name.startsWith('@' + settings.instance) &&
+        instances[settings.instance].content.packages[pkg].workspace[name][`${run ? 'run' : 'start'}`]
+    )
+    .map(({ wk }) => wk)
+    .filter(({ name }) => (workspace ? name === '@' + settings.instance + '/' + workspace : true));
 
-  console.log('workspaces', workspaces);
-
-  console.log(
-    'path',
-    instances[settings.instance].content.packages[Object.keys(instances[settings.instance].content.packages)[0]].install
-  );
   // For now, only one root content package per CLI client.
   const base_toolkit = realPath(
     path.join(
@@ -120,37 +114,38 @@ async function start({
           watch,
           warning: !!warning
         },
-        plugins: watch
-          ? [
-              {
-                'metalsmith-watch': {
-                  livereload: 35730 + idx,
-                  paths: {
-                    '${source}/**/*': '**/*.md',
-                    'code/assets/**/*': '**/*.md',
-                    'code/templates/*.pug': '**/*'
+        plugins:
+          watch && scripts.preview == 'web'
+            ? [
+                {
+                  'metalsmith-watch': {
+                    livereload: 35730 + idx,
+                    paths: {
+                      '${source}/**/*': '**/*',
+                      'code/assets/**/*': '**/*.md',
+                      'code/templates/*.pug': '**/*'
+                    }
+                  }
+                },
+                {
+                  'metalsmith-serve': {
+                    document_root: path.join(os.homedir(), '.content/build'),
+                    port: 8081 + idx,
+                    verbose: false,
+                    // http_error_files: {
+                    //   '404': '/404.html'
+                    // },
+                    redirects: {
+                      '/': name,
+                      '/searchMeta.json': '/' + name + '/searchMeta.json',
+                      '/searchIndex.json': '/' + name + '/searchIndex.json',
+                      '/debug-ui/data.json': '/' + name + '/debug-ui/data.json'
+                      // '/old_url.php?lang=en': '/en/new_url/'
+                    }
                   }
                 }
-              },
-              {
-                'metalsmith-serve': {
-                  document_root: path.join(os.homedir(), '.content/build'),
-                  port: 8081 + idx,
-                  verbose: false,
-                  // http_error_files: {
-                  //   '404': '/404.html'
-                  // },
-                  redirects: {
-                    '/': name,
-                    '/searchMeta.json': '/' + name + '/searchMeta.json',
-                    '/searchIndex.json': '/' + name + '/searchIndex.json',
-                    '/debug-ui/data.json': '/' + name + '/debug-ui/data.json'
-                    // '/old_url.php?lang=en': '/en/new_url/'
-                  }
-                }
-              }
-            ]
-          : []
+              ]
+            : []
       },
       err => {
         if (err) {
