@@ -18,6 +18,7 @@ process.once('SIGINT', function() {
 program
   .command('init [template]', 'initialise the current folder with the default or specified template')
   .command('start', 'Start preview')
+  .command('run', 'Run workspace script')
   .command('new', 'Create new content package')
   .command('load', 'Load existing content package')
   .command('save', 'Save current content package')

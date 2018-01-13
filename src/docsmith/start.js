@@ -41,7 +41,7 @@ async function start({
   const repository = yaml.safeLoad(fs.readFileSync(settings.config, 'utf8'));
   debug('repository', repository);
   const instances = await doInstancesInfo({ instances: repository.instances });
-  debug('instances', instances);
+  debug('instances', JSON.stringify(instances, true, 2));
   debug(
     'ok',
     Object.keys(instances[settings.instance].content.packages)
@@ -91,10 +91,11 @@ async function start({
       '\n' +
       '\n'
   );
-
+  debug('workspaces', workspaces);
   workspaces.forEach(({ name, scripts }, idx) => {
     debug('config.');
-    console.log('>> Starting workspace: ' + name, path.join(base_toolkit, scripts.start));
+    debug('base_toolkit', base_toolkit);
+    console.log('>> Starting workspace: ' + name, path.join(base_toolkit, scripts[run ? 'run' : 'start']));
     console.log(
       '>> Please wait about 5 seconds while the website is built and you see the message "successfully built files."'
     );
@@ -102,7 +103,7 @@ async function start({
     //TODO: Maybe factor out webserver.
 
     metalsmith(
-      path.join(base_toolkit, scripts.start),
+      path.join(base_toolkit, scripts[run ? 'run' : 'start']),
       {
         ...(source ? { source } : null),
         dbg,

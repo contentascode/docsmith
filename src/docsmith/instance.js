@@ -51,6 +51,8 @@ const doInstancesInfo = async ({ instances }, s) => {
       // Gather the content of the content.yml.
       const content = yaml(read(path.join(pth, './content.yml'), 'utf8'));
 
+      debug('settings.packages', settings.packages);
+
       // Lookup package content.yml
       const pkgs = Object.keys(content.packages)
         .map(pkg => ({

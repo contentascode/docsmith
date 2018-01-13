@@ -18,24 +18,29 @@ const doWorkspacesInfo = async ({ workspaces }) => {
       debug('instances', instances);
       return Promise.all(
         instances.map(async instance => {
-          const links = await fs.readdirAsync(path.join(workspace, instance));
-          return Promise.all(
-            links.map(async lnk_path => {
-              const lnk = await fs.readlinkAsync(path.join(workspace, instance, lnk_path));
-              debug('lnk', lnk);
-              const link = path.resolve(workspace, lnk);
-              debug('link', link);
-              const pkg_name = link.split('/packages/')[1].split('/')[0];
-              const pkg_path = path.join(link.split('/packages/')[0], 'packages', pkg_name);
-              const pkg = require(path.join(pkg_path, 'package.json'));
-              const name = pkg.name;
-              const version = pkg.version;
-              const { commit, current, branches } = await doInfo({ path: pkg_path });
-              return {
-                [instance + '/' + lnk_path]: { source: link, package: name, version, current, branches, commit }
-              };
-            })
-          ).then(link => ({ [instance]: link.reduce((acc, cur) => ({ ...acc, ...cur }), {}) }));
+          try {
+            const links = await fs.readdirAsync(path.join(workspace, instance));
+            return Promise.all(
+              links.map(async lnk_path => {
+                const lnk = await fs.readlinkAsync(path.join(workspace, instance, lnk_path));
+                debug('lnk', lnk);
+                const link = path.resolve(workspace, lnk);
+                debug('link', link);
+                const pkg_name = link.split('/packages/')[1].split('/')[0];
+                const pkg_path = path.join(link.split('/packages/')[0], 'packages', pkg_name);
+                const pkg = require(path.join(pkg_path, 'package.json'));
+                const name = pkg.name;
+                const version = pkg.version;
+                const { commit, current, branches } = await doInfo({ path: pkg_path });
+                return {
+                  [instance + '/' + lnk_path]: { source: link, package: name, version, current, branches, commit }
+                };
+              })
+            ).then(link => ({ [instance]: link.reduce((acc, cur) => ({ ...acc, ...cur }), {}) }));
+          } catch (e) {
+            if (e.code === 'ENOENT') exit('Could not find the folder ' + path.join(workspace, instance), e);
+            else throw e;
+          }
         })
       ).then(instance => ({ [workspace]: instance.reduce((acc, cur) => ({ ...acc, ...cur }), {}) }));
     })
