@@ -32,7 +32,8 @@ const install = function install({ packages, repository, link, verbose }, done) 
       if (link) {
         debug('>> Linking content package: ' + name);
       } else {
-        console.log('Installing', pkg);
+        const { name, version } = require(path.join(process.cwd(), name, 'package.json'));
+        console.log('Installing ' + name, version);
         debug('>> Installing content package: ' + pkg, process.cwd());
       }
 
