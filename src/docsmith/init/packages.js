@@ -32,8 +32,6 @@ const install = function install({ packages, repository, link, verbose }, done) 
       if (link) {
         debug('>> Linking content package: ' + name);
       } else {
-        const { name, version } = require(path.join(process.cwd(), 'package.json'));
-        console.log('Installing ' + name, version);
         debug('>> Installing content package: ' + pkg, process.cwd());
       }
 
@@ -46,7 +44,7 @@ const install = function install({ packages, repository, link, verbose }, done) 
       npm.load({ global: false, save: false, progress: false, loglevel: verbose ? 'info' : 'silent' }, function(err) {
         if (err) return err;
         debug('>> Before npm install ' + [link ? name : pkg], process.cwd());
-        npm.commands[link ? 'link' : 'install']('.', [link ? name : pkg], function(err) {
+        npm.commands[link ? 'link' : 'install']('.', [link ? '' : pkg], function(err) {
           if (err && err.code === 'E404') {
             console.error('Could not find content package: ' + err.pkgid);
             return callback(err);
@@ -62,6 +60,10 @@ const install = function install({ packages, repository, link, verbose }, done) 
             path.join(repository, 'packages', name),
             { overwrite: true, errorOnExist: false, dereference: true }
           );
+
+          debug('package.json', path.join(process.cwd(), 'package.json'));
+          const { name: pkgName, version } = require(path.join(process.cwd(), 'package.json'));
+          console.log('Installed ' + pkgName, version);
 
           const exists = fs.pathExistsSync(path.join(repository, 'packages', name, './content.yml'));
           debug(

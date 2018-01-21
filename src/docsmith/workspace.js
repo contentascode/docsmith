@@ -19,7 +19,9 @@ const doWorkspacesInfo = async ({ workspaces }) => {
       return Promise.all(
         instances.map(async instance => {
           try {
-            const links = await fs.readdirAsync(path.join(workspace, instance));
+            const folders = await fs.readdirAsync(path.join(workspace, instance));
+            const links = folders.filter(link => link[0] !== '.');
+            debug('links', links);
             return Promise.all(
               links.map(async lnk_path => {
                 const lnk = await fs.readlinkAsync(path.join(workspace, instance, lnk_path));
@@ -28,6 +30,7 @@ const doWorkspacesInfo = async ({ workspaces }) => {
                 debug('link', link);
                 const pkg_name = link.split('/packages/')[1].split('/')[0];
                 const pkg_path = path.join(link.split('/packages/')[0], 'packages', pkg_name);
+                console.log('pkg_path', pkg_path);
                 const pkg = require(path.join(pkg_path, 'package.json'));
                 const name = pkg.name;
                 const version = pkg.version;

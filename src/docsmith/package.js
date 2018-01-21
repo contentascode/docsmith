@@ -208,6 +208,7 @@ const doPackagesInit = async ({ non_interactive, configuration, packages, curren
 
   // Deploy symlinks.
   // TODO: async/await
+  // TODO: Move to workspace
   Object.keys(installed_packages[configuration.settings.instance].content.packages).forEach(key => {
     debug(
       'installed_packages[configuration.settings.instance].content.packages[key]',
@@ -215,19 +216,48 @@ const doPackagesInit = async ({ non_interactive, configuration, packages, curren
     );
     Object.keys(installed_packages[configuration.settings.instance].content.packages[key].workspace)
       .reduce((acc, workspace) => (acc.includes(workspace.split('/')[0]) ? acc : [...acc, workspace]), [])
+      .filter(group => installed_packages[configuration.settings.instance].content.packages[key].workspace[group].start)
       .forEach(group => {
-        debug('link', path.join(configuration.settings.packages, key, 'content'));
+        debug(
+          'link',
+          path.join(
+            configuration.settings.packages,
+            key,
+            installed_packages[configuration.settings.instance].content.packages[key].workspace[group].source ||
+              'content'
+          )
+        );
         debug('to', group);
         try {
-          fs.ensureSymlinkSync(path.join(configuration.settings.packages, key, 'content'), path.join(current, group));
+          fs.ensureSymlinkSync(
+            path.join(
+              configuration.settings.packages,
+              key,
+              installed_packages[configuration.settings.instance].content.packages[key].workspace[group].source ||
+                'content'
+            ),
+            path.join(current, group)
+          );
           console.log(
             'Symlinked',
-            path.join(configuration.settings.packages, key, 'content') + ' to ' + path.join(current, group)
+            path.join(
+              configuration.settings.packages,
+              key,
+              installed_packages[configuration.settings.instance].content.packages[key].workspace[group].source ||
+                'content'
+            ) +
+              ' to ' +
+              path.join(current, group)
           );
         } catch (e) {
           exit(
             '\nError while creating symlink from ' +
-              path.join(configuration.settings.packages, key, 'content') +
+              path.join(
+                configuration.settings.packages,
+                key,
+                installed_packages[configuration.settings.instance].content.packages[key].workspace[group].source ||
+                  'content'
+              ) +
               ' to ' +
               path.join(current, group),
             e
