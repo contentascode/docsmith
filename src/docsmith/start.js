@@ -115,19 +115,23 @@ async function start({
           watch,
           warning: !!warning
         },
-        plugins:
-          watch && scripts.preview == 'web'
+        plugins: [
+          ...(watch
             ? [
                 {
                   'metalsmith-watch': {
-                    livereload: 35730 + idx,
+                    ...(scripts.preview == 'web' ? { livereload: 35730 + idx } : null),
                     paths: {
                       '${source}/**/*': '**/*',
                       'code/assets/**/*': '**/*.md',
                       'code/templates/*.pug': '**/*'
                     }
                   }
-                },
+                }
+              ]
+            : []),
+          ...(watch && scripts.preview == 'web'
+            ? [
                 {
                   'metalsmith-serve': {
                     document_root: path.join(os.homedir(), '.content/build'),
@@ -146,7 +150,8 @@ async function start({
                   }
                 }
               ]
-            : []
+            : [])
+        ]
       },
       err => {
         if (err) {
