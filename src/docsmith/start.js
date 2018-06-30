@@ -97,7 +97,7 @@ async function start({
     debug('base_toolkit', base_toolkit);
     console.log('>> Starting workspace: ' + name, path.join(base_toolkit, scripts[run ? 'run' : 'start']));
     console.log(
-      '>> Please wait about 5 seconds while the website is built and you see the message "successfully built files."'
+      '>> Please wait while the build is in progress and until you see the message "successfully built files."'
     );
     //TODO: Make watch more targeted.
     //TODO: Maybe factor out webserver.
