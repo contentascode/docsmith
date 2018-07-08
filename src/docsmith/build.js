@@ -27,6 +27,9 @@ async function build({
   config,
   link = false,
   source,
+  project,
+  sdk_version,
+  platform,
   keystore_path,
   key_alias,
   watch = false,
@@ -118,47 +121,36 @@ async function build({
 
       // Start expo server
       const build_dir = path.join(settings.packages.replace('/packages', ''), 'build', name);
-      try {
-        exp_server = spawn(`exp start --offline --localhost --no-dev --minify ${build_dir}`, {
-          shell: true,
-          stdio: ['ignore', 'inherit', 'inherit']
-        });
 
-        // TODO run docker build next when url is displayed.
-        // Start docker based Android build
-        // TODO remove bashistic way to not expose the pass to the environment.
+      // TODO run docker build next when url is displayed.
+      // Start docker based Android build
+      // TODO remove bashistic way to not expose the pass to the environment.
 
-        const buildCommand =
-          `func() {
+      const buildCommand =
+        `func() {
           local ksp kp;
           read -s -p "\nKeystore Password:" ksp;
           read -s -p "\nKey Password:" kp;
           echo "\n";
           docker rm contentascode_android_build 2>/dev/null || true;
           docker run -it --name contentascode_android_build` +
-          ` -v ${keystore_path}:${keystore_path}` +
-          ` -v $(pwd)/build:/build` +
-          ` -v ${build_dir}:/src/js` +
-          ` -v /Users/jun/dev/apprentice/contentascode-expo/tools-public:/src/exponent/tools-public` +
-          ` -e APK_FILENAME=${pkg}` +
-          ` -e KEYSTORE_PATH=${keystore_path}` +
-          ` -e KEY_ALIAS=${key_alias}` +
-          ` -e KEYSTORE_PASSWORD=$ksp` +
-          ` -e KEY_PASSWORD=$kp` +
-          ` iilab/expo-cached:27.0.0;` +
-          `};
-        sleep 15 && func;`;
+        ` -e URL=https://exp.host/${project}` +
+        ` -v ${keystore_path}:${keystore_path}` +
+        ` -v $(pwd)/build:/build` +
+        ` -e APK_FILENAME=${pkg}` +
+        (sdk_version ? ` -e SDK_VERSION=${sdk_version}` : ` `) +
+        ` -e KEYSTORE_PATH=${keystore_path}` +
+        ` -e KEY_ALIAS=${key_alias}` +
+        ` -e KEYSTORE_PASSWORD=$ksp` +
+        ` -e KEY_PASSWORD=$kp` +
+        ` iilab/expo-cached:27.0.0;` +
+        `};
+        func;`;
 
-        docker_build = execSync(buildCommand, {
-          shell: '/bin/bash',
-          stdio: ['inherit', 'inherit', 'inherit']
-        });
-      } finally {
-        // Terminate expo server
-        !exp_server.killed && exp_server.kill();
-        // console.log('Terminating docker build!');
-        // execSync('docker stop contentascode_android_build');
-      }
+      docker_build = execSync(buildCommand, {
+        shell: '/bin/bash',
+        stdio: ['inherit', 'inherit', 'inherit']
+      });
     } else if (scripts.preview == 'web') {
       // TODO: DRY below which comes from docsmith:start.
       metalsmith(
