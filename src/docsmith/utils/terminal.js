@@ -123,7 +123,7 @@ const exit = (message, error) => {
       console.log(
         chalk.grey('\n=============================================================================\n\n') +
           chalk.red(
-            'Please alert the developer by submitting an issue \nat https://github.com/contentascode/safetag/issues and copy the whole output of the command above.\n\nApologies for the inconvenience!\n'
+            'Please alert the developer by submitting an issue \nat https://github.com/docsmith/docsmith/issues and copy the whole output of the command above.\n\nApologies for the inconvenience!\n'
           )
       );
       process.exit(1);
