@@ -30,7 +30,7 @@ const doWorkspacesInfo = async ({ workspaces }) => {
                 debug('link', link);
                 const pkg_name = link.split('/packages/')[1].split('/')[0];
                 const pkg_path = path.join(link.split('/packages/')[0], 'packages', pkg_name);
-                console.log('pkg_path', pkg_path);
+
                 const pkg = require(path.join(pkg_path, 'package.json'));
                 const name = pkg.name;
                 const version = pkg.version;
