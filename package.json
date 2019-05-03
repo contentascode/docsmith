@@ -56,7 +56,7 @@
     "metalsmith": "contentascode/metalsmith",
     "metalsmith-debug-ui": "github:contentascode/metalsmith-debug-ui",
     "nodegit": "^0.22.2",
-    "npm": "^6.4.1",
+    "npm": "6.4.1",
     "progress": "^2.0.0",
     "promzard": "^0.3.0",
     "ramda": "^0.25.0",
