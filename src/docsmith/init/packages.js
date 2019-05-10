@@ -46,11 +46,11 @@ const install = function install({ packages, repository, link, verbose }, done) 
         debug('>> Before npm install ' + [link ? name : pkg], process.cwd());
         npm.commands[link ? 'link' : 'install']('.', [link ? '' : pkg], function(err) {
           if (err && err.code === 'E404') {
-            console.error('Could not find content package: ' + err.pkgid);
+            console.error('Could not find content package: ' + JSON.stringify(err, true, 2));
             return callback(err);
           }
           if (err) {
-            console.error(err);
+            console.error('Error installing content package. ', JSON.stringify(err, true, 2));
             return callback(err);
           }
 
