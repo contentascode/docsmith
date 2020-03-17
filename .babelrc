@@ -1,18 +1,23 @@
 {
   "plugins": [
     [
-      "transform-object-rest-spread",
+      "@babel/plugin-proposal-object-rest-spread",
       {
         "useBuiltIns": true
       }
     ],
-    ["transform-async-to-generator"]
+    [
+      "@babel/plugin-transform-async-to-generator",
+      null
+    ]
   ],
   "presets": [
     [
-      "env",
+      "@babel/preset-env",
       {
-        "exclude": ["transform-regenerator"],
+        "exclude": [
+          "transform-regenerator"
+        ],
         "targets": {
           "node": "6"
         },
