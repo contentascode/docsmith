@@ -4,19 +4,29 @@
  * Module dependencies.
  */
 
-const program = require('commander');
-const pjson = require('../package.json');
-const debug = require('debug')('docsmith:init');
+const program = require('commander')
+const pjson = require('../package.json')
+const debug = require('debug')('docsmith:init')
 
-global.Promise = require('bluebird');
-program.version(pjson.version).option('-v, --verbose', 'Display additional log output');
-
-process.once('SIGINT', function() {
-  console.log('Exiting. See ya!');
-});
+global.Promise = require('bluebird')
+// trick to replace argv1 since npm fixed the bin aliasing vulnerability
+if (process.argv[2] === '--argv1' && process.argv[3] !== undefined) {
+  process.argv.splice(1, 2)
+}
 
 program
-  .command('init [template]', 'initialise the current folder with the default or specified template')
+  .version(pjson.version)
+  .option('-v, --verbose', 'Display additional log output')
+
+process.once('SIGINT', function() {
+  console.log('Exiting. See ya!')
+})
+
+program
+  .command(
+    'init [template]',
+    'initialise the current folder with the default or specified template'
+  )
   .command('start', 'Start preview')
   .command('run', 'Run workspace script')
   .command('new', 'Create new content package')
@@ -30,4 +40,4 @@ program
   )
   .command('build', 'EXPERIMENTAL - build the content locally')
   .command('status', 'EXPERIMENTAL - displays current configuration')
-  .parse(process.argv);
+  .parse(process.argv)
